@@ -1,4 +1,4 @@
-package com.libcustom;
+package com.github.jleblanc64.libcustom;
 
 import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.Test;

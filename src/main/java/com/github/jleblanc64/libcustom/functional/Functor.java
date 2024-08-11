@@ -13,14 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.libcustom.functional;
+package com.github.jleblanc64.libcustom.functional;
 
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.*;
-
-import static com.libcustom.functional.OptionF.emptyO;
-import static com.libcustom.functional.OptionF.o;
 
 public class Functor {
     @FunctionalInterface
@@ -140,9 +137,9 @@ public class Functor {
 
     public static <T> OptionF<T> tryF(ThrowingSupplier<T> f) {
         try {
-            return o(f.get());
+            return OptionF.o(f.get());
         } catch (Exception ignored) {
-            return emptyO();
+            return OptionF.emptyO();
         }
     }
 
