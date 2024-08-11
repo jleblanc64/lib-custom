@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jleblanc64.libcustom;
+package io.github.jleblanc64.libcustom;
 
 import lombok.AllArgsConstructor;
 

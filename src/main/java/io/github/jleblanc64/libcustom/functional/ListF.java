@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jleblanc64.libcustom.functional;
+package io.github.jleblanc64.libcustom.functional;
 
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
@@ -26,7 +26,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.function.*;
 import java.util.stream.Collectors;
 
-import static com.github.jleblanc64.libcustom.functional.Functor.tryF;
+import static io.github.jleblanc64.libcustom.functional.Functor.tryF;
 import static com.google.common.collect.Lists.newArrayList;
 
 @NoArgsConstructor

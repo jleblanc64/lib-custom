@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jleblanc64.libcustom;
+package io.github.jleblanc64.libcustom;
 
 import lombok.SneakyThrows;
 import net.bytebuddy.agent.ByteBuddyAgent;
 
 import java.util.ArrayList;
 
-import static com.github.jleblanc64.libcustom.functional.Functor.ThrowingFunction;
-import static com.github.jleblanc64.libcustom.functional.ListF.f;
+import static io.github.jleblanc64.libcustom.functional.Functor.ThrowingFunction;
+import static io.github.jleblanc64.libcustom.functional.ListF.f;
 import static net.bytebuddy.agent.builder.AgentBuilder.RedefinitionStrategy.RETRANSFORMATION;
 
 public class LibCustom {

@@ -1,8 +1,8 @@
-package com.github.jleblanc64.libcustom;
+package io.github.jleblanc64.libcustom;
 
 import org.junit.jupiter.api.Test;
 
-import static com.github.jleblanc64.libcustom.functional.Functor.catchEx;
+import static io.github.jleblanc64.libcustom.functional.Functor.catchEx;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LibCustomFailTests {

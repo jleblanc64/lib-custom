@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jleblanc64.libcustom;
+package io.github.jleblanc64.libcustom;
 
 import net.bytebuddy.asm.Advice;
 
 import java.lang.reflect.Method;
 
-import static com.github.jleblanc64.libcustom.functional.OptionF.o;
-import static com.github.jleblanc64.libcustom.Internal.*;
+import static io.github.jleblanc64.libcustom.functional.OptionF.o;
+import static io.github.jleblanc64.libcustom.Internal.*;
 import static net.bytebuddy.implementation.bytecode.assign.Assigner.Typing.DYNAMIC;
 
 public class AdviceGeneric {
