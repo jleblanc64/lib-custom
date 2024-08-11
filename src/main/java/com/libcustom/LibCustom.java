@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.libcustom.lib_override;
+package com.libcustom;
 
 import lombok.SneakyThrows;
 import net.bytebuddy.agent.ByteBuddyAgent;
@@ -22,7 +22,7 @@ import java.util.ArrayList;
 
 import static com.libcustom.functional.Functor.ThrowingFunction;
 import static com.libcustom.functional.ListF.f;
-import static com.libcustom.lib_override.Internal.*;
+import static com.libcustom.Internal.*;
 import static net.bytebuddy.agent.builder.AgentBuilder.RedefinitionStrategy.RETRANSFORMATION;
 
 public class LibCustom {

@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.libcustom.lib_override;
+package com.libcustom;
 
 import net.bytebuddy.asm.Advice;
 
 import java.lang.reflect.Method;
 
 import static com.libcustom.functional.OptionF.o;
-import static com.libcustom.lib_override.Internal.*;
+import static com.libcustom.Internal.*;
 import static net.bytebuddy.implementation.bytecode.assign.Assigner.Typing.DYNAMIC;
 
 public class AdviceGeneric {
