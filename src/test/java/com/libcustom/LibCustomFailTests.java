@@ -1,10 +1,10 @@
-package com.demo;
+package com.libcustom;
 
-import com.demo.lib_override.LibCustom;
+import com.libcustom.lib_override.LibCustom;
 import org.junit.jupiter.api.Test;
 
-import static com.demo.LibCustomTests.A;
-import static com.demo.functional.Functor.catchEx;
+import static com.libcustom.LibCustomTests.A;
+import static com.libcustom.functional.Functor.catchEx;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LibCustomFailTests {

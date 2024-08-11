@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.demo.functional;
+package com.libcustom.functional;
 
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.*;
 
-import static com.demo.functional.OptionF.emptyO;
-import static com.demo.functional.OptionF.o;
+import static com.libcustom.functional.OptionF.emptyO;
+import static com.libcustom.functional.OptionF.o;
 
 public class Functor {
     @FunctionalInterface

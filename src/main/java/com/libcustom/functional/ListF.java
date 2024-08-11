@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.demo.functional;
+package com.libcustom.functional;
 
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
@@ -26,7 +26,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.function.*;
 import java.util.stream.Collectors;
 
-import static com.demo.functional.Functor.tryF;
+import static com.libcustom.functional.Functor.tryF;
 import static com.google.common.collect.Lists.newArrayList;
 
 @NoArgsConstructor

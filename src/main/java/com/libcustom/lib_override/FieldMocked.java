@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.demo.lib_override;
+package com.libcustom.lib_override;
 
-import com.demo.functional.ListF;
+import com.libcustom.functional.ListF;
 import lombok.SneakyThrows;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
-import static com.demo.functional.ListF.f;
+import static com.libcustom.functional.ListF.f;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.reflections.ReflectionUtils.Fields;

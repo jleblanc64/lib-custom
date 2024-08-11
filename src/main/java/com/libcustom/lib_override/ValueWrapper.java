@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.demo.lib_override;
+package com.libcustom.lib_override;
 
 import lombok.AllArgsConstructor;
 

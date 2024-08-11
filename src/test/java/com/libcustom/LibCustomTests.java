@@ -1,6 +1,6 @@
-package com.demo;
+package com.libcustom;
 
-import com.demo.lib_override.LibCustom;
+import com.libcustom.lib_override.LibCustom;
 import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.Test;
 

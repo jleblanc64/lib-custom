@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.demo.lib_override;
+package com.libcustom.lib_override;
 
-import com.demo.functional.ListF;
+import com.libcustom.functional.ListF;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.bytebuddy.agent.builder.AgentBuilder;
@@ -32,8 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import static com.demo.functional.ListF.empty;
-import static com.demo.functional.ListF.f;
+import static com.libcustom.functional.ListF.empty;
+import static com.libcustom.functional.ListF.f;
 import static net.bytebuddy.agent.builder.AgentBuilder.InitializationStrategy.NoOp.INSTANCE;
 import static net.bytebuddy.agent.builder.AgentBuilder.RedefinitionStrategy.RETRANSFORMATION;
 import static net.bytebuddy.agent.builder.AgentBuilder.TypeStrategy.Default.REDEFINE;
