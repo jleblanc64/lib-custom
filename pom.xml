@@ -4,15 +4,19 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.jleblanc64</groupId>
     <artifactId>lib-custom</artifactId>
-    <version>0.0.1</version>
+    <version>1.0.0</version>
     <name>Lib Custom</name>
+
+    <description>
+        Lib Custom is a Java library for easily customizing third-party library code.
+    </description>
+    <url>https://github.com/jleblanc64/lib-custom</url>
 
     <properties>
         <java.version>11</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <bytebuddy.version>1.14.18</bytebuddy.version>
-        <testcontainers.version>1.20.1</testcontainers.version>
-        <flyway.version>8.2.1</flyway.version>
+        <repository.url>git@github.com:jleblanc64/lib-custom.git</repository.url>
     </properties>
 
     <licenses>
@@ -23,6 +27,31 @@
             <comments>A business-friendly OSS license</comments>
         </license>
     </licenses>
+
+    <developers>
+        <developer>
+            <id>jleblanc64</id>
+            <name>Charles Dabadie</name>
+            <email>dabadich@gmail.com</email>
+            <url>https://www.linkedin.com/in/charles-dabadie-7098b175/</url>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+    </developers>
+
+    <issueManagement>
+        <system>github.com</system>
+        <url>https://github.com/jleblanc64/lib-custom/issues</url>
+    </issueManagement>
+
+    <scm>
+        <connection>scm:git:${repository.url}</connection>
+        <developerConnection>scm:git:${repository.url}</developerConnection>
+        <url>${repository.url}</url>
+        <tag>HEAD</tag>
+    </scm>
 
     <dependencies>
         <dependency>
@@ -85,6 +114,29 @@
                     <testSource>${java.version}</testSource>
                     <testTarget>${java.version}</testTarget>
                     <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.5.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>central</publishingServerId>
                 </configuration>
             </plugin>
             <plugin>
