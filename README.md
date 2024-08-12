@@ -41,8 +41,10 @@ class: A, function name: f
 ```java
 LibCustom.modifyReturn(A.class, "f", x -> {
     var args = x.args;
+    
     var returned = x.returned;
-    return ...;
+    (... modify returned ...)
+    return returned;
 });
 ```
 ### Modify static function argument
@@ -50,7 +52,9 @@ LibCustom.modifyReturn(A.class, "f", x -> {
 class: A, function name: f, argument to modify index: i
 ```java
 LibCustom.modifyArg(A.class, "f", i, args -> {
-    return ...;
+    var arg = args[i];
+    (... modify arg ...)
+    return arg;
 });
 ```
 ### Modify dynamic function argument
@@ -60,6 +64,9 @@ class: A, function name: f, argument to modify index: i
 LibCustom.modifyArgWithSelf(A.class, "f", i, x -> {
     var args = x.args;
     var self = x.self;
-    return ...;
+    
+    var arg = args[i];
+    (... modify arg ...)
+    return arg;
 });
 ```
