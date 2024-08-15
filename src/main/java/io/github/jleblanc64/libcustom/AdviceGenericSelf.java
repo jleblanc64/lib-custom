@@ -30,10 +30,8 @@ public class AdviceGenericSelf {
         var name = hash(method);
 
         var f = nameToMethodSelf.get(name);
-        if (f != null) {
-            var res = f.apply(new ArgsSelf(args, self));
-            return !(res instanceof LibCustom.Original) ? new ValueWrapper(res) : null;
-        }
+        if (f != null)
+            return ValueWrapper.fromResult(f.apply(new ArgsSelf(args, self)));
 
         var methodArgIdxSelf = nameToMethodArgsModSelf.get(name);
         if (methodArgIdxSelf != null) {

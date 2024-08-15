@@ -29,10 +29,8 @@ public class AdviceGeneric {
                                @Advice.Origin Method method) {
         var name = hash(method);
         var f = nameToMethod.get(name);
-        if (f != null) {
-            var res = f.apply(args);
-            return !(res instanceof LibCustom.Original) ? new ValueWrapper(res) : null;
-        }
+        if (f != null)
+            return ValueWrapper.fromResult(f.apply(args));
 
         var methodArgIdx = nameToMethodArgsMod.get(name);
         if (methodArgIdx != null) {

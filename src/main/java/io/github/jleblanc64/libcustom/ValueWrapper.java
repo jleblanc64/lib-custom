@@ -20,4 +20,8 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 class ValueWrapper {
     public Object value;
+
+    static ValueWrapper fromResult(Object res) {
+        return !(res instanceof LibCustom.Original) ? new ValueWrapper(res) : null;
+    }
 }
