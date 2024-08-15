@@ -19,8 +19,8 @@ import net.bytebuddy.asm.Advice;
 
 import java.lang.reflect.Method;
 
-import static io.github.jleblanc64.libcustom.functional.OptionF.o;
 import static io.github.jleblanc64.libcustom.Internal.*;
+import static io.github.jleblanc64.libcustom.functional.OptionF.o;
 import static net.bytebuddy.implementation.bytecode.assign.Assigner.Typing.DYNAMIC;
 
 public class AdviceGeneric {
@@ -29,8 +29,10 @@ public class AdviceGeneric {
                                @Advice.Origin Method method) {
         var name = hash(method);
         var f = nameToMethod.get(name);
-        if (f != null)
-            return f.apply(args);
+        if (f != null) {
+            var res = f.apply(args);
+            return !(res instanceof LibCustom.Original) ? new ValueWrapper(res) : null;
+        }
 
         var methodArgIdx = nameToMethodArgsMod.get(name);
         if (methodArgIdx != null) {
@@ -51,7 +53,7 @@ public class AdviceGeneric {
         if (returnedOverride != null)
             returned = returnedOverride;
         else if (enter != null)
-            returned = enter;
+            returned = ((ValueWrapper) enter).value;
     }
 
     public static Object returnedOverride(Object[] args, Object returned, Method method) {

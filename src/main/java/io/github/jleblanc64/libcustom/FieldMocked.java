@@ -24,8 +24,7 @@ import java.lang.reflect.Type;
 import static io.github.jleblanc64.libcustom.functional.ListF.f;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.reflections.ReflectionUtils.Fields;
-import static org.reflections.ReflectionUtils.get;
+import static org.reflections.ReflectionUtils.getAllFields;
 
 public class FieldMocked {
     @SneakyThrows
@@ -57,6 +56,6 @@ public class FieldMocked {
     }
 
     public static ListF<Field> fields(Object o) {
-        return f(get(Fields.of(o.getClass())));
+        return f(getAllFields(o.getClass()));
     }
 }

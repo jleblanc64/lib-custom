@@ -38,8 +38,7 @@ import static net.bytebuddy.agent.builder.AgentBuilder.InitializationStrategy.No
 import static net.bytebuddy.agent.builder.AgentBuilder.RedefinitionStrategy.RETRANSFORMATION;
 import static net.bytebuddy.agent.builder.AgentBuilder.TypeStrategy.Default.REDEFINE;
 import static net.bytebuddy.matcher.ElementMatchers.*;
-import static org.reflections.ReflectionUtils.Methods;
-import static org.reflections.ReflectionUtils.get;
+import static org.reflections.ReflectionUtils.getAllMethods;
 
 public class Internal {
     public static Map<String, Function<Object[], Object>> nameToMethod;
@@ -73,7 +72,7 @@ public class Internal {
     }
 
     static void checkNotStatic(Class<?> clazz, String name) {
-        var methods = f(get(Methods.of(clazz)));
+        var methods = f(getAllMethods(clazz));
         var m = methods.findSafe(x -> x.getName().equals(name));
         var isStatic = Modifier.isStatic(m.getModifiers());
         if (isStatic)

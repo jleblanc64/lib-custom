@@ -18,6 +18,6 @@ package io.github.jleblanc64.libcustom;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public class ValueWrapper {
+class ValueWrapper {
     public Object value;
 }

@@ -30,8 +30,10 @@ public class AdviceGenericSelf {
         var name = hash(method);
 
         var f = nameToMethodSelf.get(name);
-        if (f != null)
-            return f.apply(new ArgsSelf(args, self));
+        if (f != null) {
+            var res = f.apply(new ArgsSelf(args, self));
+            return !(res instanceof LibCustom.Original) ? new ValueWrapper(res) : null;
+        }
 
         var methodArgIdxSelf = nameToMethodArgsModSelf.get(name);
         if (methodArgIdxSelf != null) {
@@ -45,9 +47,7 @@ public class AdviceGenericSelf {
 
     @Advice.OnMethodExit
     public static void exit(@Advice.Enter Object enter, @Advice.Return(readOnly = false, typing = DYNAMIC) Object returned) {
-        if (enter instanceof ValueWrapper)
+        if (enter != null)
             returned = ((ValueWrapper) enter).value;
-        else if (enter != null)
-            returned = enter;
     }
 }

@@ -26,8 +26,8 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.function.*;
 import java.util.stream.Collectors;
 
-import static io.github.jleblanc64.libcustom.functional.Functor.tryF;
 import static com.google.common.collect.Lists.newArrayList;
+import static io.github.jleblanc64.libcustom.functional.Functor.tryF;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -61,6 +61,10 @@ public class ListF<T> implements List<T> {
             result = op.apply(result, t);
 
         return result;
+    }
+
+    public ListF<T> sorted() {
+        return f(stream().sorted().collect(Collectors.toList()));
     }
 
     public double sumD() {
