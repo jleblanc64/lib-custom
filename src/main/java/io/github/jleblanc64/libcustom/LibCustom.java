@@ -90,7 +90,8 @@ public class LibCustom {
         Internal.methodsArgsModSelf.clear();
     }
 
-    public static class Original {
-
+    public static final class Original {
+        private Original() {
+        }
     }
 }
