@@ -35,7 +35,7 @@ public class AdviceGeneric {
         var methodArgIdx = nameToMethodArgsMod.get(name);
         if (methodArgIdx != null) {
             var argsMod = methodArgIdx.method.apply(args);
-            if (argsMod != null)
+            if (!(argsMod instanceof LibCustom.Original))
                 args = modArgs(args, methodArgIdx.argIdx, argsMod);
         }
 
