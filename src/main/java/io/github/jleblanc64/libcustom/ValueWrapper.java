@@ -15,14 +15,14 @@
  */
 package io.github.jleblanc64.libcustom;
 
-final class ValueWrapper {
-    Object value;
+public final class ValueWrapper {
+    public Object value;
 
     private ValueWrapper(Object value) {
         this.value = value;
     }
 
-    static ValueWrapper fromResult(Object res) {
+    public static ValueWrapper fromResult(Object res) {
         return !(res instanceof LibCustom.Original) ? new ValueWrapper(res) : null;
     }
 }
