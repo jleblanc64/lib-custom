@@ -25,8 +25,6 @@ import static io.github.jleblanc64.libcustom.functional.ListF.f;
 import static net.bytebuddy.agent.builder.AgentBuilder.RedefinitionStrategy.RETRANSFORMATION;
 
 public class LibCustom {
-    public static final Original ORIGINAL = new Original();
-
     public static void override(Class<?> clazz, String name, ThrowingFunction<Object[], Object> method) {
         Internal.methods.add(new Internal.MethodDesc(name, method, clazz));
     }
@@ -90,8 +88,10 @@ public class LibCustom {
         Internal.methodsArgsModSelf.clear();
     }
 
-    public static final class Original {
-        private Original() {
+    public static final C1 ORIGINAL = new C1();
+
+    public static final class C1 {
+        private C1() {
         }
     }
 }

@@ -23,6 +23,6 @@ public final class ValueWrapper {
     }
 
     public static ValueWrapper fromResult(Object res) {
-        return !(res instanceof LibCustom.Original) ? new ValueWrapper(res) : null;
+        return !(res instanceof LibCustom.C1) ? new ValueWrapper(res) : null;
     }
 }
