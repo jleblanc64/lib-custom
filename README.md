@@ -30,8 +30,8 @@ LibCustom.override(A.class, "f", args -> {
 class: A, function name: f
 ```java
 LibCustom.overrideWithSelf(A.class, "f", x -> {
-    var args = x.args;
-    var self = x.self;
+    Object[] args = x.args;
+    A self = (A) x.self;
     return ...;
 });
 ```
@@ -40,7 +40,7 @@ LibCustom.overrideWithSelf(A.class, "f", x -> {
 class: A, function name: f
 ```java
 LibCustom.modifyReturn(A.class, "f", x -> {
-    var args = x.args;
+    Object[] args = x.args;
     
     var returned = x.returned;
     (... modify returned ...)
@@ -62,11 +62,16 @@ LibCustom.modifyArg(A.class, "f", i, args -> {
 class: A, function name: f, argument to modify index: i
 ```java
 LibCustom.modifyArgWithSelf(A.class, "f", i, x -> {
-    var args = x.args;
-    var self = x.self;
+    Object[] args = x.args;
+    A self = (A) x.self;
     
     var arg = args[i];
     (... modify arg ...)
     return arg;
 });
+```
+
+### Cancel all modifications
+```java
+LibCustom.reset();
 ```

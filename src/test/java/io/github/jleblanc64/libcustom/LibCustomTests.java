@@ -1,6 +1,7 @@
 package io.github.jleblanc64.libcustom;
 
 import lombok.AllArgsConstructor;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -47,8 +48,8 @@ public class LibCustomTests {
         //
         LibCustom.reset();
         assertEquals(8, A.g());
-        LibCustom.modifyReturn(A.class, "g", argsReturned -> {
-            var returned = (int) argsReturned.returned;
+        LibCustom.modifyReturn(A.class, "g", x -> {
+            var returned = (int) x.returned;
             return 2 * returned;
         });
         LibCustom.load();
@@ -62,19 +63,53 @@ public class LibCustomTests {
         assertEquals(11, a.get());
         assertEquals(13, a.getX(2));
 
-        LibCustom.overrideWithSelf(A.class, "get", argsSelf -> {
-            var self = (A) argsSelf.self;
+        LibCustom.overrideWithSelf(A.class, "get", x -> {
+            A self = (A) x.self;
             return self.a + 1;
         });
-        LibCustom.modifyArgWithSelf(A.class, "getX", 0, argsSelf -> {
-            var x = (int) argsSelf.args[0];
-            var self = (A) argsSelf.self;
-            return self.a - x;
+        LibCustom.modifyArgWithSelf(A.class, "getX", 0, x -> {
+            Object[] args = x.args;
+            A self = (A) x.self;
+
+            var arg = (int) args[0];
+            return self.a - arg;
         });
         LibCustom.load();
 
         assertEquals(12, a.get());
         assertEquals(20, a.getX(2));
+    }
+
+    @Test
+    void testSelf2() {
+        var a = new A(11);
+        assertEquals(13, a.getX(2));
+
+        LibCustom.overrideWithSelf(A.class, "getX", x -> {
+            Object[] args = x.args;
+            A self = (A) x.self;
+
+            var arg = (int) args[0];
+            return self.a + 2 * arg;
+        });
+        LibCustom.load();
+
+        assertEquals(15, a.getX(2));
+    }
+
+    @Test
+    void testReturn() {
+        assertEquals(11, A.gX(3));
+        LibCustom.modifyReturn(A.class, "gX", x -> {
+            Object[] args = x.args;
+
+            var arg = (int) args[0];
+            var returned = (int) x.returned;
+            return arg * returned;
+        });
+        LibCustom.load();
+
+        assertEquals(33, A.gX(3));
     }
 
     @AllArgsConstructor
@@ -96,6 +131,10 @@ public class LibCustomTests {
         static int g() {
             return 8;
         }
+
+        static int gX(int x) {
+            return 8 + x;
+        }
     }
 
     static class B {
@@ -108,5 +147,10 @@ public class LibCustomTests {
         static int f() {
             return 4;
         }
+    }
+
+    @BeforeEach
+    void reset() {
+        LibCustom.reset();
     }
 }
