@@ -8,7 +8,7 @@ It simplifies Byte Buddy usage for common use cases.
 <dependency>
     <groupId>io.github.jleblanc64</groupId>
     <artifactId>lib-custom</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
