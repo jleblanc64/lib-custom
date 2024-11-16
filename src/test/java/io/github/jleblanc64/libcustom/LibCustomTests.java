@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+
+import static io.github.jleblanc64.libcustom.functional.Functor.print;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LibCustomTests {
@@ -15,6 +18,9 @@ public class LibCustomTests {
         assertEquals(4, C.f());
         LibCustom.override(A.class, "f", args -> 1);
         LibCustom.modifyArg(B.class, "g", 0, args -> {
+            // log args
+            print(Arrays.toString(args));
+
             var i = (int) args[0];
             return i + 1;
         });
