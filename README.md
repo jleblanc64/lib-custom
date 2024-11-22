@@ -1,7 +1,6 @@
 # lib-custom
 
-Lib Custom is a Java library for easily customizing third-party library code.
-It simplifies Byte Buddy usage for common use cases.
+Lib Custom is a Java library for customizing any method at runtime, whether the method is part of your codebase or external.
 
 ### Maven pom.xml
 ```xml
@@ -17,29 +16,29 @@ Use any of the below customizers, and then load the byte code using:
 LibCustom.load();
 ```
 
-### Override static function
+### Override static method
 
-class: A, function name: f
+class: A, method name: m
 ```java
-LibCustom.override(A.class, "f", args -> {
+LibCustom.override(A.class, "m", args -> {
     return ...;
 });
 ```
-### Override dynamic function
+### Override dynamic method
 
-class: A, function name: f
+class: A, method name: m
 ```java
-LibCustom.overrideWithSelf(A.class, "f", x -> {
+LibCustom.overrideWithSelf(A.class, "m", x -> {
     Object[] args = x.args;
     A self = (A) x.self;
     return ...;
 });
 ```
-### Modify function return
+### Modify method return
 
-class: A, function name: f
+class: A, method name: m
 ```java
-LibCustom.modifyReturn(A.class, "f", x -> {
+LibCustom.modifyReturn(A.class, "m", x -> {
     Object[] args = x.args;
     
     var returned = x.returned;
@@ -47,21 +46,21 @@ LibCustom.modifyReturn(A.class, "f", x -> {
     return returned;
 });
 ```
-### Modify static function argument
+### Modify static method argument
 
-class: A, function name: f, argument to modify index: i
+class: A, method name: m, argument to modify index: i
 ```java
-LibCustom.modifyArg(A.class, "f", i, args -> {
+LibCustom.modifyArg(A.class, "m", i, args -> {
     var arg = args[i];
     (... modify arg ...)
     return arg;
 });
 ```
-### Modify dynamic function argument
+### Modify dynamic method argument
 
-class: A, function name: f, argument to modify index: i
+class: A, method name: m, argument to modify index: i
 ```java
-LibCustom.modifyArgWithSelf(A.class, "f", i, x -> {
+LibCustom.modifyArgWithSelf(A.class, "m", i, x -> {
     Object[] args = x.args;
     A self = (A) x.self;
     

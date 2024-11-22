@@ -70,6 +70,13 @@ public class Internal {
         agents.add(agent);
     }
 
+    static void checkFunctionName(Class<?> clazz, String name) {
+        var methods = f(Reflection.getAllMethods(clazz));
+        var m = methods.findSafe(x -> x.getName().equals(name));
+        if (m == null)
+            throw new RuntimeException("No method: " + name + " in class: " + clazz.getName());
+    }
+
     static void checkNotStatic(Class<?> clazz, String name) {
         var methods = f(Reflection.getAllMethods(clazz));
         var m = methods.findSafe(x -> x.getName().equals(name));

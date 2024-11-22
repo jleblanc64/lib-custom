@@ -20,31 +20,38 @@ import net.bytebuddy.agent.ByteBuddyAgent;
 
 import java.util.ArrayList;
 
+import static io.github.jleblanc64.libcustom.Internal.checkFunctionName;
+import static io.github.jleblanc64.libcustom.Internal.checkNotStatic;
 import static io.github.jleblanc64.libcustom.functional.Functor.ThrowingFunction;
 import static io.github.jleblanc64.libcustom.functional.ListF.f;
 import static net.bytebuddy.agent.builder.AgentBuilder.RedefinitionStrategy.RETRANSFORMATION;
 
 public class LibCustom {
-    public static void override(Class<?> clazz, String name, ThrowingFunction<Object[], Object> method) {
-        Internal.methods.add(new Internal.MethodDesc(name, method, clazz));
+    public static void override(Class<?> clazz, String methodName, ThrowingFunction<Object[], Object> method) {
+        checkFunctionName(clazz, methodName);
+        Internal.methods.add(new Internal.MethodDesc(methodName, method, clazz));
     }
 
-    public static void overrideWithSelf(Class<?> clazz, String name, ThrowingFunction<Internal.ArgsSelf, Object> method) {
-        Internal.checkNotStatic(clazz, name);
-        Internal.methodsSelf.add(new Internal.MethodDescSelf(name, method, clazz));
+    public static void overrideWithSelf(Class<?> clazz, String methodName, ThrowingFunction<Internal.ArgsSelf, Object> method) {
+        checkFunctionName(clazz, methodName);
+        checkNotStatic(clazz, methodName);
+        Internal.methodsSelf.add(new Internal.MethodDescSelf(methodName, method, clazz));
     }
 
-    public static void modifyReturn(Class<?> clazz, String name, ThrowingFunction<Internal.ArgsReturned, Object> method) {
-        Internal.methodsExitArgs.add(new Internal.MethodDescExitArgs(name, method, clazz));
+    public static void modifyReturn(Class<?> clazz, String methodName, ThrowingFunction<Internal.ArgsReturned, Object> method) {
+        checkFunctionName(clazz, methodName);
+        Internal.methodsExitArgs.add(new Internal.MethodDescExitArgs(methodName, method, clazz));
     }
 
-    public static void modifyArg(Class<?> clazz, String name, int argIdx, ThrowingFunction<Object[], Object> method) {
-        Internal.methodsArgsMod.add(new Internal.MethodDescArgsMod(name, new Internal.MethodArgIdx(argIdx, method), clazz));
+    public static void modifyArg(Class<?> clazz, String methodName, int argIdx, ThrowingFunction<Object[], Object> method) {
+        checkFunctionName(clazz, methodName);
+        Internal.methodsArgsMod.add(new Internal.MethodDescArgsMod(methodName, new Internal.MethodArgIdx(argIdx, method), clazz));
     }
 
-    public static void modifyArgWithSelf(Class<?> clazz, String name, int argIdx, ThrowingFunction<Internal.ArgsSelf, Object> method) {
-        Internal.checkNotStatic(clazz, name);
-        Internal.methodsArgsModSelf.add(new Internal.MethodDescArgsModSelf(name, new Internal.MethodArgIdxSelf(argIdx, method), clazz));
+    public static void modifyArgWithSelf(Class<?> clazz, String methodName, int argIdx, ThrowingFunction<Internal.ArgsSelf, Object> method) {
+        checkFunctionName(clazz, methodName);
+        checkNotStatic(clazz, methodName);
+        Internal.methodsArgsModSelf.add(new Internal.MethodDescArgsModSelf(methodName, new Internal.MethodArgIdxSelf(argIdx, method), clazz));
     }
 
     @SneakyThrows
