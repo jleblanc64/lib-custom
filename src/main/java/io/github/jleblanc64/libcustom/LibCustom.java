@@ -25,7 +25,7 @@ import java.util.ArrayList;
 
 import static io.github.jleblanc64.libcustom.Internal.checkFunctionName;
 import static io.github.jleblanc64.libcustom.Internal.checkNotStatic;
-import static io.github.jleblanc64.libcustom.LibVersion.byteBuddyVersionToInt;
+import static io.github.jleblanc64.libcustom.LibVersion.isBigger;
 import static io.github.jleblanc64.libcustom.functional.Functor.ThrowingFunction;
 import static io.github.jleblanc64.libcustom.functional.Functor.tryF;
 import static io.github.jleblanc64.libcustom.functional.ListF.f;
@@ -65,13 +65,12 @@ public class LibCustom {
     @SneakyThrows
     public static void load() {
         // check that byte buddy lib is recent enough
-        var minVersion = byteBuddyVersionToInt(BYTE_BUDDY_MIN_VERSION);
         var byteBuddyVersionS = LibVersion.extractVersion(AgentBuilder.class);
         if (byteBuddyVersionS == null)
             logger.warn("Couldn't find Byte Buddy version");
         else {
-            var byteBuddyVersion = tryF(() -> byteBuddyVersionToInt(byteBuddyVersionS)).orElse(null);
-            if (byteBuddyVersion == null || byteBuddyVersion < minVersion)
+            var isBigger = tryF(() -> isBigger(BYTE_BUDDY_MIN_VERSION, byteBuddyVersionS)).orElse(null);
+            if (isBigger == null || isBigger)
                 throw new RuntimeException("Minimum byte buddy version required: " + BYTE_BUDDY_MIN_VERSION
                         + " | Please specify it directly in your pom.xml | Current version used: " + byteBuddyVersionS);
         }

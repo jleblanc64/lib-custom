@@ -15,6 +15,8 @@
  */
 package io.github.jleblanc64.libcustom;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.IOException;
 import java.util.Properties;
 import java.util.jar.JarEntry;
@@ -58,5 +60,32 @@ public class LibVersion {
 
     public static int byteBuddyVersionToInt(String version) {
         return Integer.parseInt(version.replaceAll("\\.", ""));
+    }
+
+    public static boolean isBigger(String a, String b) {
+        int countA = StringUtils.countMatches(a, ".");
+        int countB = StringUtils.countMatches(b, ".");
+
+        int countDot = Math.max(countA, countB);
+        for (int i = 0; i < countDot - countA; i++)
+            a += ".0";
+
+        for (int i = 0; i < countDot - countB; i++)
+            b += ".0";
+
+        var splitA = a.split("\\.");
+        var splitB = b.split("\\.");
+
+        for (int i = 0; i < splitA.length; i++) {
+            var intA = Integer.parseInt(splitA[i]);
+            var intB = Integer.parseInt(splitB[i]);
+
+            if (intA > intB)
+                return true;
+            else if (intA < intB)
+                return false;
+        }
+
+            return false;
     }
 }
