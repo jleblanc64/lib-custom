@@ -24,22 +24,19 @@ public class LibVersion {
         }
     }
 
-    private static Properties readPomProperties(JarInputStream jarInputStream, Class<?> referenceClass) {
-        try {
-            JarEntry jarEntry;
-            while ((jarEntry = jarInputStream.getNextJarEntry()) != null) {
-                String entryName = jarEntry.getName();
-                if (entryName.startsWith("META-INF")
-                        && entryName.endsWith("pom.properties")) {
+    private static Properties readPomProperties(JarInputStream jarInputStream, Class<?> referenceClass) throws IOException {
+        JarEntry jarEntry;
+        while ((jarEntry = jarInputStream.getNextJarEntry()) != null) {
+            var entryName = jarEntry.getName();
+            if (entryName.startsWith("META-INF") && entryName.endsWith("pom.properties")) {
 
-                    Properties properties = new Properties();
-                    ClassLoader classLoader = referenceClass.getClassLoader();
-                    properties.load(classLoader.getResourceAsStream(entryName));
-                    return properties;
-                }
+                var props = new Properties();
+                var cl = referenceClass.getClassLoader();
+                props.load(cl.getResourceAsStream(entryName));
+                return props;
             }
-        } catch (IOException ignored) {
         }
+
         return null;
     }
 
