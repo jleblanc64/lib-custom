@@ -18,17 +18,22 @@ package io.github.jleblanc64.libcustom;
 import lombok.SneakyThrows;
 import net.bytebuddy.agent.ByteBuddyAgent;
 import net.bytebuddy.agent.builder.AgentBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 
 import static io.github.jleblanc64.libcustom.Internal.checkFunctionName;
 import static io.github.jleblanc64.libcustom.Internal.checkNotStatic;
+import static io.github.jleblanc64.libcustom.LibVersion.byteBuddyVersionToInt;
 import static io.github.jleblanc64.libcustom.functional.Functor.ThrowingFunction;
+import static io.github.jleblanc64.libcustom.functional.Functor.tryF;
 import static io.github.jleblanc64.libcustom.functional.ListF.f;
 import static net.bytebuddy.agent.builder.AgentBuilder.RedefinitionStrategy.RETRANSFORMATION;
 
 public class LibCustom {
     static String BYTE_BUDDY_MIN_VERSION = "1.14.18";
+    private static final Logger logger = LoggerFactory.getLogger(LibCustom.class);
 
     public static void override(Class<?> clazz, String methodName, ThrowingFunction<Object[], Object> method) {
         checkFunctionName(clazz, methodName);
@@ -60,11 +65,17 @@ public class LibCustom {
     @SneakyThrows
     public static void load() {
         // check that byte buddy lib is recent enough
-        var byteBuddyVersion = LibVersion.extractVersion(AgentBuilder.class);
-        var minVersion = LibVersion.byteBuddyVersionToInt(BYTE_BUDDY_MIN_VERSION);
-        if (byteBuddyVersion < minVersion)
-            throw new RuntimeException("Minimum byte buddy version required: " + BYTE_BUDDY_MIN_VERSION
-                    + " | Please specify it directly in your pom.xml");
+        var minVersion = byteBuddyVersionToInt(BYTE_BUDDY_MIN_VERSION);
+        var byteBuddyVersionS = LibVersion.extractVersion(AgentBuilder.class);
+        if (byteBuddyVersionS == null)
+            logger.warn("Couldn't find Byte Buddy version");
+        else {
+            var byteBuddyVersion = tryF(() -> byteBuddyVersionToInt(byteBuddyVersionS)).orElse(null);
+            if (byteBuddyVersion == null || byteBuddyVersion < minVersion)
+                throw new RuntimeException("Minimum byte buddy version required: " + BYTE_BUDDY_MIN_VERSION
+                        + " | Please specify it directly in your pom.xml | Current version used: " + byteBuddyVersionS);
+        }
+        logger.info("Byte Buddy version: " + byteBuddyVersionS);
 
         // fill nameToMethod
         Internal.nameToMethod = Internal.methods.toMap(Internal::hash, m -> m.method);

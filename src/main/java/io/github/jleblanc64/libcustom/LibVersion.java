@@ -8,11 +8,11 @@ import java.util.jar.JarInputStream;
 import static io.github.jleblanc64.libcustom.functional.Functor.tryF;
 
 public class LibVersion {
-    public static int extractVersion(Class<?> referenceClass) {
+    public static String extractVersion(Class<?> referenceClass) {
         return tryF(() -> extractVersionUnsafe(referenceClass)).orElse(null);
     }
 
-    private static int extractVersionUnsafe(Class<?> referenceClass) throws IOException {
+    private static String extractVersionUnsafe(Class<?> referenceClass) throws IOException {
         var p = referenceClass.getProtectionDomain();
         var c = p.getCodeSource();
         var l = c.getLocation();
@@ -20,8 +20,7 @@ public class LibVersion {
         try (var os = l.openStream();
              var jis = new JarInputStream(os)) {
             var props = readPomProperties(jis, referenceClass);
-            var version = props.getProperty("version");
-            return byteBuddyVersionToInt(version);
+            return props.getProperty("version");
         }
     }
 
