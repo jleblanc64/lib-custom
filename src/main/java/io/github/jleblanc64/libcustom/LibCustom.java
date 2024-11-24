@@ -17,6 +17,7 @@ package io.github.jleblanc64.libcustom;
 
 import lombok.SneakyThrows;
 import net.bytebuddy.agent.ByteBuddyAgent;
+import net.bytebuddy.agent.builder.AgentBuilder;
 
 import java.util.ArrayList;
 
@@ -27,6 +28,8 @@ import static io.github.jleblanc64.libcustom.functional.ListF.f;
 import static net.bytebuddy.agent.builder.AgentBuilder.RedefinitionStrategy.RETRANSFORMATION;
 
 public class LibCustom {
+    static String BYTE_BUDDY_MIN_VERSION = "1.14.18";
+
     public static void override(Class<?> clazz, String methodName, ThrowingFunction<Object[], Object> method) {
         checkFunctionName(clazz, methodName);
         Internal.methods.add(new Internal.MethodDesc(methodName, method, clazz));
@@ -56,6 +59,13 @@ public class LibCustom {
 
     @SneakyThrows
     public static void load() {
+        // check that byte buddy lib is recent enough
+        var byteBuddyVersion = LibVersion.extractVersion(AgentBuilder.class);
+        var minVersion = LibVersion.byteBuddyVersionToInt(BYTE_BUDDY_MIN_VERSION);
+        if (byteBuddyVersion < minVersion)
+            throw new RuntimeException("Minimum byte buddy version required: " + BYTE_BUDDY_MIN_VERSION
+                    + " | Please specify it directly in your pom.xml");
+
         // fill nameToMethod
         Internal.nameToMethod = Internal.methods.toMap(Internal::hash, m -> m.method);
         Internal.nameToMethodExit = Internal.methodsExit.toMap(Internal::hash, m -> m.method);
