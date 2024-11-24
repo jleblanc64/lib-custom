@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.jleblanc64</groupId>
     <artifactId>lib-custom</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <name>Lib Custom</name>
 
     <description>
@@ -15,7 +15,7 @@
     <properties>
         <java.version>11</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <bytebuddy.version>1.14.18</bytebuddy.version>
+        <bytebuddy.version>1.15.10</bytebuddy.version>
         <repository.url>git@github.com:jleblanc64/lib-custom.git</repository.url>
     </properties>
 
