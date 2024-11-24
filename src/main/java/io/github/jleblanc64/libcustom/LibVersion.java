@@ -19,6 +19,7 @@ public class LibVersion {
 
         try (var os = l.openStream();
              var jis = new JarInputStream(os)) {
+
             var props = readPomProperties(jis, referenceClass);
             return props.getProperty("version");
         }
