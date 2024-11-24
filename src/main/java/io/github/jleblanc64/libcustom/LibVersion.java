@@ -58,10 +58,6 @@ public class LibVersion {
         return null;
     }
 
-    public static int byteBuddyVersionToInt(String version) {
-        return Integer.parseInt(version.replaceAll("\\.", ""));
-    }
-
     public static boolean isBigger(String a, String b) {
         int countA = StringUtils.countMatches(a, ".");
         int countB = StringUtils.countMatches(b, ".");
