@@ -19,11 +19,15 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import io.github.jleblanc64.libcustom.annotation.AnnotationInvocationHandler;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class Reflection {
@@ -78,5 +82,11 @@ public class Reflection {
 
     private static Set<Field> getFields(Class<?> type, Predicate<? super Field>... predicates) {
         return filter(type.getDeclaredFields(), predicates);
+    }
+
+    public static <A extends Annotation> A mockAnnotation(Class<A> annotationType, Map<String, Object> values) {
+        return (A) Proxy.newProxyInstance(annotationType.getClassLoader(),
+                new Class[]{annotationType},
+                new AnnotationInvocationHandler(annotationType, values));
     }
 }
