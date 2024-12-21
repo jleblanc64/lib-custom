@@ -48,7 +48,7 @@ public class AdviceGeneric {
                             @Advice.Origin Method method) {
 
         var returnedOverride = returnedOverride(args, returned, method);
-        if (returnedOverride != null)
+        if (returnedOverride != null && !(returnedOverride instanceof LibCustom.C1))
             returned = returnedOverride;
         else if (enter != null)
             returned = ((ValueWrapper) enter).value;

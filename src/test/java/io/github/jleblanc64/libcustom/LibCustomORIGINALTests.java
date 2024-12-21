@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class LibCustomORIGINALTests {
     @Test
     void test() {
+        LibCustom.reset();
         var A = new A(5);
         assertEquals(11, A.f(6));
         assertEquals(12, A.f(7));
@@ -37,6 +38,28 @@ public class LibCustomORIGINALTests {
         LibCustom.load();
         assertEquals(10, B.f(10));
         assertEquals(14, B.f(7));
+    }
+
+    @Test
+    void testReturned() {
+        LibCustom.reset();
+        assertEquals(1, B.f(1));
+        LibCustom.modifyReturn(B.class, "f", x -> {
+            var returned = (int) x.returned;
+            return returned + 1;
+        });
+        LibCustom.load();
+        assertEquals(2, B.f(1));
+
+        LibCustom.reset();
+        LibCustom.modifyReturn(B.class, "f", x -> LibCustom.ORIGINAL);
+        LibCustom.load();
+        assertEquals(1, B.f(1));
+
+        LibCustom.reset();
+        LibCustom.modifyReturn(B.class, "f", x -> x.returned);
+        LibCustom.load();
+        assertEquals(1, B.f(1));
     }
 
     @AllArgsConstructor
