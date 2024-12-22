@@ -48,7 +48,9 @@ public class AdviceGeneric {
                             @Advice.Origin Method method) {
 
         var returnedOverride = returnedOverride(args, returned, method);
-        if (returnedOverride != null && !(returnedOverride instanceof LibCustom.C1))
+        if (returnedOverride instanceof ValueWrapper)
+            returned = ((ValueWrapper) returnedOverride).value;
+        else if (returnedOverride != null)
             returned = returnedOverride;
         else if (enter != null)
             returned = ((ValueWrapper) enter).value;
@@ -58,7 +60,7 @@ public class AdviceGeneric {
         var name = hash(method);
         var fArgs = nameToMethodExitArgs.get(name);
         if (fArgs != null)
-            return fArgs.apply(new ArgsReturned(args, returned));
+            return ValueWrapper.fromResult(fArgs.apply(new ArgsReturned(args, returned)));
 
         var fOpt = o(nameToMethodExit.get(method.getName()));
         return fOpt.flatMap(f -> o(f.apply(returned))).get();

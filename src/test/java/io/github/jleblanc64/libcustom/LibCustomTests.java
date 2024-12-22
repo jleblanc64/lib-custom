@@ -8,6 +8,7 @@ import java.util.Arrays;
 
 import static io.github.jleblanc64.libcustom.functional.Functor.print;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class LibCustomTests {
     @Test
@@ -106,6 +107,7 @@ public class LibCustomTests {
     @Test
     void testReturn() {
         assertEquals(11, A.gX(3));
+        assertEquals(4, D.f());
         LibCustom.modifyReturn(A.class, "gX", x -> {
             Object[] args = x.args;
 
@@ -113,9 +115,11 @@ public class LibCustomTests {
             var returned = (int) x.returned;
             return arg * returned;
         });
+        LibCustom.modifyReturn(D.class, "f", x -> null);
         LibCustom.load();
 
         assertEquals(33, A.gX(3));
+        assertNull(D.f());
     }
 
     @AllArgsConstructor
@@ -151,6 +155,12 @@ public class LibCustomTests {
 
     static class C {
         static int f() {
+            return 4;
+        }
+    }
+
+    static class D {
+        static Integer f() {
             return 4;
         }
     }
