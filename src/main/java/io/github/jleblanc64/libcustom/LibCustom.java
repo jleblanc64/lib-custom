@@ -78,7 +78,6 @@ public class LibCustom {
 
         // fill nameToMethod
         Internal.nameToMethod = Internal.methods.toMap(Internal::hash, m -> m.method);
-        Internal.nameToMethodExit = Internal.methodsExit.toMap(Internal::hash, m -> m.method);
         Internal.nameToMethodExitArgs = Internal.methodsExitArgs.toMap(Internal::hash, m -> m.method);
         Internal.nameToMethodArgsMod = Internal.methodsArgsMod.toMap(Internal::hash, m -> m.method);
 
@@ -89,7 +88,6 @@ public class LibCustom {
             Internal.instru = ByteBuddyAgent.install();
 
         var methodMetas = new ArrayList<Internal.MethodMeta>(Internal.methods);
-        methodMetas.addAll(Internal.methodsExit);
         methodMetas.addAll(Internal.methodsExitArgs);
         methodMetas.addAll(Internal.methodsArgsMod);
         var classToMethods = f(methodMetas).groupBy(Internal.MethodMeta::getClazz, Internal.MethodMeta::getName);
@@ -107,7 +105,6 @@ public class LibCustom {
         Internal.agents.clear();
 
         Internal.methods.clear();
-        Internal.methodsExit.clear();
         Internal.methodsExitArgs.clear();
         Internal.methodsArgsMod.clear();
 

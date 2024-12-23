@@ -122,6 +122,19 @@ public class LibCustomTests {
         assertNull(D.f());
     }
 
+    @Test
+    void testArgsModNull() {
+        assertEquals(1, E.f(1));
+        var e = new E();
+        assertEquals(1, e.g(1));
+        LibCustom.modifyArg(E.class, "f", 0, args -> null);
+        LibCustom.modifyArgWithSelf(E.class, "g", 0, args -> null);
+        LibCustom.load();
+
+        assertNull(E.f(1));
+        assertNull(e.g(1));
+    }
+
     @AllArgsConstructor
     static class A {
         private int a;
@@ -162,6 +175,16 @@ public class LibCustomTests {
     static class D {
         static Integer f() {
             return 4;
+        }
+    }
+
+    static class E {
+        static Integer f(Integer i) {
+            return i;
+        }
+
+        Integer g(Integer i) {
+            return i;
         }
     }
 

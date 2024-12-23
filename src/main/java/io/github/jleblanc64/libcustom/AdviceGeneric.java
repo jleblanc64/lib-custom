@@ -20,7 +20,6 @@ import net.bytebuddy.asm.Advice;
 import java.lang.reflect.Method;
 
 import static io.github.jleblanc64.libcustom.Internal.*;
-import static io.github.jleblanc64.libcustom.functional.OptionF.o;
 import static net.bytebuddy.implementation.bytecode.assign.Assigner.Typing.DYNAMIC;
 
 public class AdviceGeneric {
@@ -48,10 +47,8 @@ public class AdviceGeneric {
                             @Advice.Origin Method method) {
 
         var returnedOverride = returnedOverride(args, returned, method);
-        if (returnedOverride instanceof ValueWrapper)
+        if (returnedOverride != null)
             returned = ((ValueWrapper) returnedOverride).value;
-        else if (returnedOverride != null)
-            returned = returnedOverride;
         else if (enter != null)
             returned = ((ValueWrapper) enter).value;
     }
@@ -62,8 +59,7 @@ public class AdviceGeneric {
         if (fArgs != null)
             return ValueWrapper.fromResult(fArgs.apply(new ArgsReturned(args, returned)));
 
-        var fOpt = o(nameToMethodExit.get(method.getName()));
-        return fOpt.flatMap(f -> o(f.apply(returned))).get();
+        return null;
     }
 
     public static Object[] modArgs(Object[] args, int idx, Object updated) {

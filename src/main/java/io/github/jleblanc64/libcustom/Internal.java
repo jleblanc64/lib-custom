@@ -42,13 +42,11 @@ import static net.bytebuddy.matcher.ElementMatchers.*;
 public class Internal {
     public static Map<String, Function<Object[], Object>> nameToMethod;
     public static Map<String, Function<ArgsSelf, Object>> nameToMethodSelf;
-    public static Map<String, Function<Object, Object>> nameToMethodExit;
     public static Map<String, Function<ArgsReturned, Object>> nameToMethodExitArgs;
     public static Map<String, MethodArgIdx> nameToMethodArgsMod;
     public static Map<String, MethodArgIdxSelf> nameToMethodArgsModSelf;
     public static ListF<MethodDesc> methods = empty();
     public static ListF<MethodDescSelf> methodsSelf = empty();
-    public static ListF<MethodDescExit> methodsExit = empty();
     public static ListF<MethodDescExitArgs> methodsExitArgs = empty();
     public static ListF<MethodDescArgsMod> methodsArgsMod = empty();
     public static ListF<MethodDescArgsModSelf> methodsArgsModSelf = empty();
