@@ -135,6 +135,19 @@ public class LibCustomTests {
         assertNull(e.g(1));
     }
 
+    @Test
+    void testMultiLoad() {
+        assertEquals(4, C.f());
+        assertEquals(4, D.f());
+        LibCustom.modifyReturn(C.class, "f", x -> 1);
+        LibCustom.load();
+        LibCustom.modifyReturn(D.class, "f", x -> 1);
+        LibCustom.load();
+
+        assertEquals(1, C.f());
+        assertEquals(1, D.f());
+    }
+
     @AllArgsConstructor
     static class A {
         private int a;

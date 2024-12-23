@@ -76,6 +76,8 @@ public class LibCustom {
         }
         logger.info("Byte Buddy version: " + byteBuddyVersionS);
 
+        reset(false);
+
         // fill nameToMethod
         Internal.nameToMethod = Internal.methods.toMap(Internal::hash, m -> m.method);
         Internal.nameToMethodExitArgs = Internal.methodsExitArgs.toMap(Internal::hash, m -> m.method);
@@ -87,6 +89,7 @@ public class LibCustom {
         if (Internal.instru == null)
             Internal.instru = ByteBuddyAgent.install();
 
+        // static
         var methodMetas = new ArrayList<Internal.MethodMeta>(Internal.methods);
         methodMetas.addAll(Internal.methodsExitArgs);
         methodMetas.addAll(Internal.methodsArgsMod);
@@ -101,15 +104,21 @@ public class LibCustom {
     }
 
     public static void reset() {
+        reset(true);
+    }
+
+    private static void reset(boolean clearMethods) {
         Internal.agents.forEach(a -> a.reset(Internal.instru, RETRANSFORMATION));
         Internal.agents.clear();
 
-        Internal.methods.clear();
-        Internal.methodsExitArgs.clear();
-        Internal.methodsArgsMod.clear();
+        if (clearMethods) {
+            Internal.methods.clear();
+            Internal.methodsExitArgs.clear();
+            Internal.methodsArgsMod.clear();
 
-        Internal.methodsSelf.clear();
-        Internal.methodsArgsModSelf.clear();
+            Internal.methodsSelf.clear();
+            Internal.methodsArgsModSelf.clear();
+        }
     }
 
     public static final C1 ORIGINAL = new C1();
