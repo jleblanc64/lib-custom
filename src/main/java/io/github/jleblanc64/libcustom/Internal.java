@@ -127,14 +127,6 @@ public class Internal {
 
     @AllArgsConstructor
     @Getter
-    static class MethodDescExit implements MethodMeta {
-        String name;
-        Function<Object, Object> method;
-        Class<?> clazz;
-    }
-
-    @AllArgsConstructor
-    @Getter
     static class MethodDescExitArgs implements MethodMeta {
         String name;
         Function<ArgsReturned, Object> method;
