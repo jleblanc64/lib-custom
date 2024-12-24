@@ -34,8 +34,8 @@ import java.util.List;
 import static io.github.jleblanc64.libcustom.FieldMocked.getRefl;
 
 public class VavrHibernate6 {
-    static Class<?> classList = io.vavr.collection.List.class;
-    static Class<?> classOption = Option.class;
+    static Class<?> listClass = io.vavr.collection.List.class;
+    static Class<?> optionClass = Option.class;
 
     @SneakyThrows
     public static void override() {
@@ -45,12 +45,12 @@ public class VavrHibernate6 {
             var self = argsSelf.self;
             var field = (Field) getRefl(self, SetterFieldImpl.class.getDeclaredField("field"));
 
-            if (field.getType() == classList) {
+            if (field.getType() == listClass) {
                 var bag = (PersistentBag) value;
                 return io.vavr.collection.List.ofAll(bag);
             }
 
-            if (field.getType() == classOption && !(value instanceof Option))
+            if (field.getType() == optionClass && !(value instanceof Option))
                 return Option.of(value);
 
             return LibCustom.ORIGINAL;
@@ -85,10 +85,10 @@ public class VavrHibernate6 {
                 var type = (ParameterizedType) field.getGenericType();
                 var typeRaw = type.getRawType();
                 var typeParam = type.getActualTypeArguments()[0];
-                if (typeRaw == classList)
+                if (typeRaw == listClass)
                     return FieldCustomType.create(field, new TypeImpl(List.class, new Type[]{typeParam}, null));
 
-                if (typeRaw == classOption)
+                if (typeRaw == optionClass)
                     return FieldCustomType.create(field, new TypeImpl((Class<?>) typeParam, new Type[]{}, null));
             }
 
@@ -97,7 +97,7 @@ public class VavrHibernate6 {
 
         LibCustom.modifyReturn(Class.forName("org.hibernate.metamodel.internal.BaseAttributeMetadata"), "getJavaType", argRet -> {
             var clazz = argRet.returned;
-            if (clazz == classList)
+            if (clazz == listClass)
                 return List.class;
 
             return clazz;
