@@ -18,13 +18,17 @@ package io.github.jleblanc64.libcustom.custom.spring;
 import io.github.jleblanc64.libcustom.LibCustom;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
+import lombok.SneakyThrows;
+import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;
+import org.springframework.web.method.annotation.AbstractNamedValueMethodArgumentResolver;
 
 import static io.github.jleblanc64.libcustom.FieldMocked.*;
 
 public class VavrSpring6 {
+    @SneakyThrows
     public static void override() {
         // replace null with empty OptionF or ListF
         LibCustom.modifyReturn(AbstractJackson2HttpMessageConverter.class, "readJavaType", argsR -> {
@@ -57,6 +61,27 @@ public class VavrSpring6 {
                 return MediaType.parseMediaType("application/json");
 
             return mediaType;
+        });
+
+        LibCustom.modifyReturn(AbstractNamedValueMethodArgumentResolver.class, "resolveArgument", argsRet -> {
+            var args = argsRet.args;
+            var returned = argsRet.returned;
+            var type = ((MethodParameter) args[0]).getParameterType();
+
+            if (type == Option.class && !(returned instanceof Option))
+                return Option.of(returned);
+
+            return returned;
+        });
+
+        LibCustom.modifyArg(Class.forName("org.springframework.beans.TypeConverterDelegate"), "doConvertValue", 1, args -> {
+            var newValue = args[1];
+            var requiredType = (Class<?>) args[2];
+
+            if (requiredType == Option.class)
+                return Option.of(newValue);
+
+            return LibCustom.ORIGINAL;
         });
     }
 }

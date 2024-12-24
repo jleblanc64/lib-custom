@@ -25,8 +25,6 @@ import org.hibernate.property.access.spi.GetterFieldImpl;
 import org.hibernate.property.access.spi.SetterFieldImpl;
 import org.hibernate.type.BagType;
 import org.hibernate.type.descriptor.jdbc.BasicBinder;
-import org.springframework.core.MethodParameter;
-import org.springframework.web.method.annotation.AbstractNamedValueMethodArgumentResolver;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -119,27 +117,6 @@ public class VavrHibernate6 {
                 return ((io.vavr.collection.List) collection).toJavaList();
 
             return collection;
-        });
-
-        LibCustom.modifyReturn(AbstractNamedValueMethodArgumentResolver.class, "resolveArgument", argsRet -> {
-            var args = argsRet.args;
-            var returned = argsRet.returned;
-            var type = ((MethodParameter) args[0]).getParameterType();
-
-            if (type == Option.class && !(returned instanceof Option))
-                return Option.of(returned);
-
-            return returned;
-        });
-
-        LibCustom.modifyArg(Class.forName("org.springframework.beans.TypeConverterDelegate"), "doConvertValue", 1, args -> {
-            var newValue = args[1];
-            var requiredType = (Class<?>) args[2];
-
-            if (requiredType == Option.class)
-                return Option.of(newValue);
-
-            return LibCustom.ORIGINAL;
         });
     }
 }
