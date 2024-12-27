@@ -27,14 +27,24 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 import static io.github.jleblanc64.libcustom.FieldMocked.getRefl;
-import static io.github.jleblanc64.libcustom.custom.hibernate.VavrHibernate5.listClass;
-import static io.github.jleblanc64.libcustom.custom.hibernate.VavrHibernate5.optionClass;
 
-public class VavrHibernate6 {
+public class VavrHibernate5 {
+    static Class<?> listClass = io.vavr.collection.List.class;
+    static Class<?> optionClass = Option.class;
+
     @SneakyThrows
     public static void override() {
+        var bagTypeClass = Class.forName("org.hibernate.type.BagType");
         var setterFieldImplClass = Class.forName("org.hibernate.property.access.spi.SetterFieldImpl");
         var getterFieldImplClass = Class.forName("org.hibernate.property.access.spi.GetterFieldImpl");
+
+        LibCustom.modifyReturn(Class.forName("org.hibernate.metamodel.internal.AttributeFactory$BaseAttributeMetadata"), "getJavaType", x -> {
+            var clazz = x.returned;
+            if (clazz == io.vavr.collection.List.class)
+                return List.class;
+
+            return LibCustom.ORIGINAL;
+        });
 
         LibCustom.modifyArgWithSelf(setterFieldImplClass, "set", 1, argsSelf -> {
             var args = argsSelf.args;
@@ -59,17 +69,6 @@ public class VavrHibernate6 {
             return ret;
         });
 
-        LibCustom.modifyArg(Class.forName("org.hibernate.type.descriptor.jdbc.BasicBinder"), "bind", 1, args -> {
-            var value = args[1];
-
-            if (value instanceof Option) {
-                var opt = (Option) value;
-                return opt.getOrNull();
-            }
-
-            return value;
-        });
-
         LibCustom.modifyArg(Class.forName("org.hibernate.annotations.common.reflection.java.JavaXProperty"), "create", 0, args -> {
             var member = args[0];
             if (member instanceof Field) {
@@ -90,14 +89,6 @@ public class VavrHibernate6 {
             return LibCustom.ORIGINAL;
         });
 
-        LibCustom.modifyReturn(Class.forName("org.hibernate.metamodel.internal.BaseAttributeMetadata"), "getJavaType", argRet -> {
-            var clazz = argRet.returned;
-            if (clazz == listClass)
-                return List.class;
-
-            return clazz;
-        });
-
         LibCustom.modifyArg(Class.forName("org.hibernate.type.CollectionType"), "getElementsIterator", 0, args -> {
             var collection = args[0];
             if (collection instanceof io.vavr.collection.List)
@@ -106,7 +97,7 @@ public class VavrHibernate6 {
             return collection;
         });
 
-        LibCustom.modifyArg(Class.forName("org.hibernate.type.BagType"), "wrap", 1, args -> {
+        LibCustom.modifyArg(bagTypeClass, "wrap", 1, args -> {
             var collection = args[1];
             if (collection instanceof io.vavr.collection.List)
                 return ((io.vavr.collection.List) collection).toJavaList();
