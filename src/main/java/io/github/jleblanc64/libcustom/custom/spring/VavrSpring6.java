@@ -19,19 +19,20 @@ import io.github.jleblanc64.libcustom.LibCustom;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import lombok.SneakyThrows;
-import org.springframework.core.MethodParameter;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;
-import org.springframework.web.method.annotation.AbstractNamedValueMethodArgumentResolver;
 
 import static io.github.jleblanc64.libcustom.FieldMocked.*;
 
 public class VavrSpring6 {
     @SneakyThrows
     public static void override() {
+        var methodParameterClass = Class.forName("org.springframework.core.MethodParameter");
+        var httpHeadersClass = Class.forName("org.springframework.http.HttpHeaders");
+        var argResolverClass = Class.forName("org.springframework.web.method.annotation.AbstractNamedValueMethodArgumentResolver");
+        var msgConverterClass = Class.forName("org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter");
+        var mediaTypeClass = Class.forName("org.springframework.http.MediaType");
+
         // replace null with empty OptionF or ListF
-        LibCustom.modifyReturn(AbstractJackson2HttpMessageConverter.class, "readJavaType", argsR -> {
+        LibCustom.modifyReturn(msgConverterClass, "readJavaType", argsR -> {
             var returned = argsR.returned;
             if (returned == null)
                 return returned;
@@ -55,18 +56,18 @@ public class VavrSpring6 {
         });
 
         // accept text/plain content-type as json
-        LibCustom.modifyReturn(HttpHeaders.class, "getContentType", argsR -> {
+        LibCustom.modifyReturn(httpHeadersClass, "getContentType", argsR -> {
             var mediaType = argsR.returned;
             if (mediaType != null && mediaType.toString().toLowerCase().startsWith("text/plain"))
-                return MediaType.parseMediaType("application/json");
+                return mediaTypeClass.getMethod("parseMediaType", String.class).invoke(null, "application/json");
 
             return mediaType;
         });
 
-        LibCustom.modifyReturn(AbstractNamedValueMethodArgumentResolver.class, "resolveArgument", argsRet -> {
+        LibCustom.modifyReturn(argResolverClass, "resolveArgument", argsRet -> {
             var args = argsRet.args;
             var returned = argsRet.returned;
-            var type = ((MethodParameter) args[0]).getParameterType();
+            var type = methodParameterClass.getMethod("getParameterType").invoke(args[0]);
 
             if (type == Option.class && !(returned instanceof Option))
                 return Option.of(returned);

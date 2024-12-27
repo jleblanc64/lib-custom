@@ -19,11 +19,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import lombok.SneakyThrows;
 
 public class VavrJackson2 {
-    public static void override(java.util.List<HttpMessageConverter<?>> converters) {
+    @SneakyThrows
+    public static void override(java.util.List<?> converters) {
         var om = new ObjectMapper();
         var simpleModule = new SimpleModule()
                 .addDeserializer(List.class, new VavrListDeser.Deserializer())
@@ -35,7 +35,14 @@ public class VavrJackson2 {
                 .addSerializer(Option.class, new VavrOptionDeser.Serializer());
         om.registerModule(simpleModule);
 
-        List.ofAll(converters).filter(c -> c instanceof MappingJackson2HttpMessageConverter)
-                .forEach(c -> ((MappingJackson2HttpMessageConverter) c).setObjectMapper(om));
+        var msgConverterClass = Class.forName("org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter");
+
+        List.ofAll(converters).filter(c -> msgConverterClass.isAssignableFrom(c.getClass()))
+                .forEach(c -> setObjectMapper(c, om, msgConverterClass));
+    }
+
+    @SneakyThrows
+    static void setObjectMapper(Object msgConverter, ObjectMapper om, Class<?> msgConverterClass) {
+        msgConverterClass.getMethod("setObjectMapper", ObjectMapper.class).invoke(msgConverter, om);
     }
 }
