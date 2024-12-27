@@ -20,11 +20,6 @@ import io.github.jleblanc64.libcustom.custom.utils.FieldCustomType;
 import io.github.jleblanc64.libcustom.custom.utils.TypeImpl;
 import io.vavr.control.Option;
 import lombok.SneakyThrows;
-import org.hibernate.collection.spi.PersistentBag;
-import org.hibernate.property.access.spi.GetterFieldImpl;
-import org.hibernate.property.access.spi.SetterFieldImpl;
-import org.hibernate.type.BagType;
-import org.hibernate.type.descriptor.jdbc.BasicBinder;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -39,16 +34,17 @@ public class VavrHibernate6 {
 
     @SneakyThrows
     public static void override() {
-        LibCustom.modifyArgWithSelf(SetterFieldImpl.class, "set", 1, argsSelf -> {
+        var setterFieldImplClass = Class.forName("org.hibernate.property.access.spi.SetterFieldImpl");
+        var getterFieldImplClass = Class.forName("org.hibernate.property.access.spi.GetterFieldImpl");
+
+        LibCustom.modifyArgWithSelf(setterFieldImplClass, "set", 1, argsSelf -> {
             var args = argsSelf.args;
             var value = args[1];
             var self = argsSelf.self;
-            var field = (Field) getRefl(self, SetterFieldImpl.class.getDeclaredField("field"));
+            var field = (Field) getRefl(self, setterFieldImplClass.getDeclaredField("field"));
 
-            if (field.getType() == listClass) {
-                var bag = (PersistentBag) value;
-                return io.vavr.collection.List.ofAll(bag);
-            }
+            if (field.getType() == listClass)
+                return io.vavr.collection.List.ofAll((List) value);
 
             if (field.getType() == optionClass && !(value instanceof Option))
                 return Option.of(value);
@@ -56,7 +52,7 @@ public class VavrHibernate6 {
             return LibCustom.ORIGINAL;
         });
 
-        LibCustom.modifyReturn(GetterFieldImpl.class, "get", x -> {
+        LibCustom.modifyReturn(getterFieldImplClass, "get", x -> {
             var ret = x.returned;
             if (ret instanceof Option)
                 return ((Option) ret).getOrNull();
@@ -64,7 +60,7 @@ public class VavrHibernate6 {
             return ret;
         });
 
-        LibCustom.modifyArg(BasicBinder.class, "bind", 1, args -> {
+        LibCustom.modifyArg(Class.forName("org.hibernate.type.descriptor.jdbc.BasicBinder"), "bind", 1, args -> {
             var value = args[1];
 
             if (value instanceof Option) {
@@ -111,7 +107,7 @@ public class VavrHibernate6 {
             return collection;
         });
 
-        LibCustom.modifyArg(BagType.class, "wrap", 1, args -> {
+        LibCustom.modifyArg(Class.forName("org.hibernate.type.BagType"), "wrap", 1, args -> {
             var collection = args[1];
             if (collection instanceof io.vavr.collection.List)
                 return ((io.vavr.collection.List) collection).toJavaList();
