@@ -18,7 +18,7 @@ LibCustom.load();
 
 ### Override static method
 
-class: A, method name: m
+class: `A`, method name: `m`
 ```java
 LibCustom.override(A.class, "m", args -> {
     return ...;
@@ -26,7 +26,7 @@ LibCustom.override(A.class, "m", args -> {
 ```
 ### Override dynamic method
 
-class: A, method name: m
+class: `A`, method name: `m`
 ```java
 LibCustom.overrideWithSelf(A.class, "m", x -> {
     Object[] args = x.args;
@@ -36,7 +36,7 @@ LibCustom.overrideWithSelf(A.class, "m", x -> {
 ```
 ### Modify method return
 
-class: A, method name: m
+class: `A`, method name: `m`
 ```java
 LibCustom.modifyReturn(A.class, "m", x -> {
     Object[] args = x.args;
@@ -48,7 +48,7 @@ LibCustom.modifyReturn(A.class, "m", x -> {
 ```
 ### Modify static method argument
 
-class: A, method name: m, argument to modify index: i
+class: `A`, method name: `m`, argument to modify index: `i`
 ```java
 LibCustom.modifyArg(A.class, "m", i, args -> {
     var arg = args[i];
@@ -58,7 +58,7 @@ LibCustom.modifyArg(A.class, "m", i, args -> {
 ```
 ### Modify dynamic method argument
 
-class: A, method name: m, argument to modify index: i
+class: `A`, method name: `m`, argument to modify index: `i`
 ```java
 LibCustom.modifyArgWithSelf(A.class, "m", i, x -> {
     Object[] args = x.args;
