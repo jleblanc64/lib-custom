@@ -7,7 +7,7 @@ Lib Custom is a Java library for customizing any method at runtime, whether the 
 <dependency>
     <groupId>io.github.jleblanc64</groupId>
     <artifactId>lib-custom</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.7</version>
 </dependency>
 ```
 
