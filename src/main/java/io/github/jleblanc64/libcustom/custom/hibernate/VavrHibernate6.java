@@ -18,6 +18,8 @@ package io.github.jleblanc64.libcustom.custom.hibernate;
 import io.github.jleblanc64.libcustom.LibCustom;
 import io.github.jleblanc64.libcustom.custom.utils.FieldCustomType;
 import io.github.jleblanc64.libcustom.custom.utils.TypeImpl;
+import io.github.jleblanc64.libcustom.meta.MetaList;
+import io.github.jleblanc64.libcustom.meta.MetaOption;
 import lombok.SneakyThrows;
 
 import java.lang.reflect.Field;
@@ -30,8 +32,12 @@ import static io.github.jleblanc64.libcustom.custom.hibernate.VavrHibernate5.met
 import static io.github.jleblanc64.libcustom.custom.hibernate.VavrHibernate5.metaOption;
 
 public class VavrHibernate6 {
-    @SneakyThrows
     public static void override() {
+        override(metaOption, metaList);
+    }
+
+    @SneakyThrows
+    public static void override(MetaOption metaOption, MetaList metaList) {
         var setterFieldImplClass = Class.forName("org.hibernate.property.access.spi.SetterFieldImpl");
         var getterFieldImplClass = Class.forName("org.hibernate.property.access.spi.GetterFieldImpl");
 

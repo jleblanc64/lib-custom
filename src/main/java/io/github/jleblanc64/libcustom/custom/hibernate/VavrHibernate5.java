@@ -36,8 +36,12 @@ public class VavrHibernate5 {
     static MetaOption metaOption = new MetaOptionVavr();
     static MetaList metaList = new MetaListVavr();
 
-    @SneakyThrows
     public static void override() {
+        override(metaOption, metaList);
+    }
+
+    @SneakyThrows
+    public static void override(MetaOption metaOption, MetaList metaList) {
         var bagTypeClass = Class.forName("org.hibernate.type.BagType");
         var setterFieldImplClass = Class.forName("org.hibernate.property.access.spi.SetterFieldImpl");
         var getterFieldImplClass = Class.forName("org.hibernate.property.access.spi.GetterFieldImpl");
