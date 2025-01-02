@@ -18,6 +18,8 @@ package io.github.jleblanc64.libcustom.custom.hibernate;
 import io.github.jleblanc64.libcustom.LibCustom;
 import io.github.jleblanc64.libcustom.custom.utils.FieldCustomType;
 import io.github.jleblanc64.libcustom.custom.utils.TypeImpl;
+import io.github.jleblanc64.libcustom.meta.MetaList;
+import io.github.jleblanc64.libcustom.meta.MetaListVavr;
 import io.github.jleblanc64.libcustom.meta.MetaOption;
 import io.github.jleblanc64.libcustom.meta.MetaOptionVavr;
 import io.vavr.control.Option;
@@ -32,7 +34,7 @@ import static io.github.jleblanc64.libcustom.FieldMocked.getRefl;
 
 public class VavrHibernate5 {
     static MetaOption metaOption = new MetaOptionVavr();
-    static Class<?> listClass = io.vavr.collection.List.class;
+    static MetaList metaList = new MetaListVavr();
 
     @SneakyThrows
     public static void override() {
@@ -42,7 +44,7 @@ public class VavrHibernate5 {
 
         LibCustom.modifyReturn(Class.forName("org.hibernate.metamodel.internal.AttributeFactory$BaseAttributeMetadata"), "getJavaType", x -> {
             var clazz = x.returned;
-            if (clazz == io.vavr.collection.List.class)
+            if (metaList.isSuperClassOf(clazz))
                 return List.class;
 
             return LibCustom.ORIGINAL;
@@ -54,8 +56,8 @@ public class VavrHibernate5 {
             var self = argsSelf.self;
             var field = (Field) getRefl(self, setterFieldImplClass.getDeclaredField("field"));
 
-            if (field.getType() == listClass)
-                return io.vavr.collection.List.ofAll((List) value);
+            if (metaList.isSuperClassOf(field.getType()))
+                return metaList.fromJava((List) value);
 
             if (metaOption.isSuperClassOf(field.getType()) && !metaOption.isSuperClassOf(value))
                 return Option.of(value);
@@ -81,7 +83,7 @@ public class VavrHibernate5 {
                 var type = (ParameterizedType) field.getGenericType();
                 var typeRaw = type.getRawType();
                 var typeParam = type.getActualTypeArguments()[0];
-                if (typeRaw == listClass)
+                if (metaList.isSuperClassOf(typeRaw))
                     return FieldCustomType.create(field, new TypeImpl(List.class, new Type[]{typeParam}, null));
 
                 if (metaOption.isSuperClassOf(typeRaw))
@@ -93,16 +95,16 @@ public class VavrHibernate5 {
 
         LibCustom.modifyArg(Class.forName("org.hibernate.type.CollectionType"), "getElementsIterator", 0, args -> {
             var collection = args[0];
-            if (collection instanceof io.vavr.collection.List)
-                return ((io.vavr.collection.List) collection).toJavaList();
+            if (metaList.isSuperClassOf(collection))
+                return metaList.toJava(collection);
 
             return collection;
         });
 
         LibCustom.modifyArg(bagTypeClass, "wrap", 1, args -> {
             var collection = args[1];
-            if (collection instanceof io.vavr.collection.List)
-                return ((io.vavr.collection.List) collection).toJavaList();
+            if (metaList.isSuperClassOf(collection))
+                return metaList.toJava(collection);
 
             return collection;
         });
