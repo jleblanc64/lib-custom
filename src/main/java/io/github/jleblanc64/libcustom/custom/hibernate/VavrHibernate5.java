@@ -22,7 +22,6 @@ import io.github.jleblanc64.libcustom.meta.MetaList;
 import io.github.jleblanc64.libcustom.meta.MetaListVavr;
 import io.github.jleblanc64.libcustom.meta.MetaOption;
 import io.github.jleblanc64.libcustom.meta.MetaOptionVavr;
-import io.vavr.control.Option;
 import lombok.SneakyThrows;
 
 import java.lang.reflect.Field;
@@ -64,7 +63,7 @@ public class VavrHibernate5 {
                 return metaList.fromJava((List) value);
 
             if (metaOption.isSuperClassOf(field.getType()) && !metaOption.isSuperClassOf(value))
-                return Option.of(value);
+                return metaOption.fromValue(value);
 
             return LibCustom.ORIGINAL;
         });
