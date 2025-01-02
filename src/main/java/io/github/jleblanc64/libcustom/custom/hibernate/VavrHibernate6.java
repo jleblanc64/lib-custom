@@ -18,7 +18,6 @@ package io.github.jleblanc64.libcustom.custom.hibernate;
 import io.github.jleblanc64.libcustom.LibCustom;
 import io.github.jleblanc64.libcustom.custom.utils.FieldCustomType;
 import io.github.jleblanc64.libcustom.custom.utils.TypeImpl;
-import io.vavr.control.Option;
 import lombok.SneakyThrows;
 
 import java.lang.reflect.Field;
@@ -28,7 +27,7 @@ import java.util.List;
 
 import static io.github.jleblanc64.libcustom.FieldMocked.getRefl;
 import static io.github.jleblanc64.libcustom.custom.hibernate.VavrHibernate5.listClass;
-import static io.github.jleblanc64.libcustom.custom.hibernate.VavrHibernate5.optionClass;
+import static io.github.jleblanc64.libcustom.custom.hibernate.VavrHibernate5.metaOption;
 
 public class VavrHibernate6 {
     @SneakyThrows
@@ -45,16 +44,16 @@ public class VavrHibernate6 {
             if (field.getType() == listClass)
                 return io.vavr.collection.List.ofAll((List) value);
 
-            if (field.getType() == optionClass && !(value instanceof Option))
-                return Option.of(value);
+            if (metaOption.isSuperClassOf(field.getType()) && !metaOption.isSuperClassOf(value))
+                return metaOption.fromValue(value);
 
             return LibCustom.ORIGINAL;
         });
 
         LibCustom.modifyReturn(getterFieldImplClass, "get", x -> {
             var ret = x.returned;
-            if (ret instanceof Option)
-                return ((Option) ret).getOrNull();
+            if (metaOption.isSuperClassOf(ret))
+                return metaOption.getOrNull(ret);
 
             return ret;
         });
@@ -62,10 +61,8 @@ public class VavrHibernate6 {
         LibCustom.modifyArg(Class.forName("org.hibernate.type.descriptor.jdbc.BasicBinder"), "bind", 1, args -> {
             var value = args[1];
 
-            if (value instanceof Option) {
-                var opt = (Option) value;
-                return opt.getOrNull();
-            }
+            if (metaOption.isSuperClassOf(value))
+                return metaOption.getOrNull(value);
 
             return value;
         });
@@ -83,7 +80,7 @@ public class VavrHibernate6 {
                 if (typeRaw == listClass)
                     return FieldCustomType.create(field, new TypeImpl(List.class, new Type[]{typeParam}, null));
 
-                if (typeRaw == optionClass)
+                if (metaOption.isSuperClassOf(typeRaw))
                     return FieldCustomType.create(field, new TypeImpl((Class<?>) typeParam, new Type[]{}, null));
             }
 

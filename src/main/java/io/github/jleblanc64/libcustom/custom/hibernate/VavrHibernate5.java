@@ -18,6 +18,8 @@ package io.github.jleblanc64.libcustom.custom.hibernate;
 import io.github.jleblanc64.libcustom.LibCustom;
 import io.github.jleblanc64.libcustom.custom.utils.FieldCustomType;
 import io.github.jleblanc64.libcustom.custom.utils.TypeImpl;
+import io.github.jleblanc64.libcustom.meta.MetaOption;
+import io.github.jleblanc64.libcustom.meta.MetaOptionVavr;
 import io.vavr.control.Option;
 import lombok.SneakyThrows;
 
@@ -29,8 +31,8 @@ import java.util.List;
 import static io.github.jleblanc64.libcustom.FieldMocked.getRefl;
 
 public class VavrHibernate5 {
+    static MetaOption metaOption = new MetaOptionVavr();
     static Class<?> listClass = io.vavr.collection.List.class;
-    static Class<?> optionClass = Option.class;
 
     @SneakyThrows
     public static void override() {
@@ -55,7 +57,7 @@ public class VavrHibernate5 {
             if (field.getType() == listClass)
                 return io.vavr.collection.List.ofAll((List) value);
 
-            if (field.getType() == optionClass && !(value instanceof Option))
+            if (metaOption.isSuperClassOf(field.getType()) && !metaOption.isSuperClassOf(value))
                 return Option.of(value);
 
             return LibCustom.ORIGINAL;
@@ -63,8 +65,8 @@ public class VavrHibernate5 {
 
         LibCustom.modifyReturn(getterFieldImplClass, "get", x -> {
             var ret = x.returned;
-            if (ret instanceof Option)
-                return ((Option) ret).getOrNull();
+            if (metaOption.isSuperClassOf(ret))
+                return metaOption.getOrNull(ret);
 
             return ret;
         });
@@ -82,7 +84,7 @@ public class VavrHibernate5 {
                 if (typeRaw == listClass)
                     return FieldCustomType.create(field, new TypeImpl(List.class, new Type[]{typeParam}, null));
 
-                if (typeRaw == optionClass)
+                if (metaOption.isSuperClassOf(typeRaw))
                     return FieldCustomType.create(field, new TypeImpl((Class<?>) typeParam, new Type[]{}, null));
             }
 
