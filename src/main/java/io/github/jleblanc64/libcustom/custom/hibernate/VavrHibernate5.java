@@ -86,11 +86,12 @@ public class VavrHibernate5 {
                 var type = (ParameterizedType) field.getGenericType();
                 var typeRaw = type.getRawType();
                 var typeParam = type.getActualTypeArguments()[0];
+                var ownerType = ((ParameterizedType) field.getGenericType()).getOwnerType();
                 if (metaList.isSuperClassOf(typeRaw))
-                    return FieldCustomType.create(field, new TypeImpl(List.class, new Type[]{typeParam}, null));
+                    return FieldCustomType.create(field, new TypeImpl(List.class, new Type[]{typeParam}, ownerType));
 
                 if (metaOption.isSuperClassOf(typeRaw))
-                    return FieldCustomType.create(field, new TypeImpl((Class<?>) typeParam, new Type[]{}, null));
+                    return FieldCustomType.create(field, new TypeImpl((Class<?>) typeParam, new Type[]{}, ownerType));
             }
 
             return LibCustom.ORIGINAL;
