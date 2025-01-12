@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+// mvn clean test -Dtest=TestRetryTests#test
 public class TestRetryDefault {
     protected static volatile int MAX_ATTEMPTS = 3;
     protected static volatile ThrowingSupplier<Boolean> DISABLE = () -> false;
