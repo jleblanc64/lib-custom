@@ -26,10 +26,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 // mvn clean test -Dtest=TestRetryTests#test
-public class TestRetryDefault {
+public class TestRetry {
     protected static volatile int MAX_ATTEMPTS = 3;
     protected static volatile ThrowingSupplier<Boolean> DISABLE = () -> false;
 
@@ -38,22 +37,19 @@ public class TestRetryDefault {
         if (DISABLE.get())
             return;
 
+        var methodSelectorClass = Class.forName("org.junit.platform.engine.discovery.MethodSelector");
         var testClass = Class.forName("org.junit.jupiter.api.Test");
         var reflectionUtilsClass = Class.forName("org.junit.platform.commons.util.ReflectionUtils");
         var retryingTestClass = (Class<? extends Annotation>) Class.forName("org.junitpioneer.jupiter.RetryingTest");
 
-        LibCustom.modifyReturn(reflectionUtilsClass, "findMethod", x -> {
-            var o = (Optional<Method>) x.returned;
-            if (o == null || o.isEmpty())
-                return o;
-
-            var method = o.get();
+        LibCustom.modifyReturn(methodSelectorClass, "getJavaMethod", ret -> {
+            var m = (Method) ret.returned;
 
             // ignore non-test function
-            if (!isAnnotated(method, testClass))
-                return o;
+            if (!isAnnotated(m, testClass))
+                return LibCustom.ORIGINAL;
 
-            return Optional.of(mockMethodAnnotations(method, retryingTestClass, testClass));
+            return mockMethodAnnotations(m, retryingTestClass, testClass);
         });
 
         // bypass mockito for method.invoke(), use the base non mocked method (to preserve stacktrace)
@@ -69,7 +65,6 @@ public class TestRetryDefault {
         LibCustom.load();
     }
 
-    // disable test retry when run from IntelliJ
     private static boolean isAnnotated(Method m, Class<?> clazz) {
         var l = m.getAnnotations();
         return l.length == 1 && l[0].annotationType() == clazz;

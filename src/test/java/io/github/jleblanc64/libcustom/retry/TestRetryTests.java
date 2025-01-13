@@ -4,12 +4,16 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestRetryTests extends TestRetry {
+public class TestRetryTests {
+    static int count = 0;
+
     @Test
     public void test() {
-        assertEquals(1, 1);
+        count++;
+        if (count == 3)
+            return;
 
-//        assertEquals(1, 2);
+        assertEquals(1, 2);
     }
 }
 
