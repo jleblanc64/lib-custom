@@ -3,10 +3,10 @@ package io.github.jleblanc64.libcustom.listener;
 import io.github.jleblanc64.libcustom.custom.test.TestRetry;
 import org.junit.platform.launcher.TestExecutionListener;
 
-public class RunnerExtension extends TestRetry implements TestExecutionListener {
-    public RunnerExtension() {
+public class TestRetryListener extends TestRetry implements TestExecutionListener {
+    public TestRetryListener() {
         MAX_ATTEMPTS = 5;
-        DISABLE = RunnerExtension::isIntelliJ;
+        DISABLE = TestRetryListener::isIntelliJ;
         retryTests();
     }
 
