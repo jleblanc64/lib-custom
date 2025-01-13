@@ -116,6 +116,12 @@
             <version>5.14.2</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20180130</version>
+            <scope>compile</scope>
+        </dependency>
 
         <!--TEST-->
         <dependency>
