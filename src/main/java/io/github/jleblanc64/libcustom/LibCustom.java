@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.function.Function;
 
 import static io.github.jleblanc64.libcustom.Internal.checkFunctionName;
 import static io.github.jleblanc64.libcustom.Internal.checkNotStatic;
@@ -37,7 +38,27 @@ public class LibCustom {
 
     public static void override(Class<?> clazz, String methodName, ThrowingFunction<Object[], Object> method) {
         checkFunctionName(clazz, methodName);
-        Internal.methods.add(new Internal.MethodDesc(methodName, method, clazz));
+
+        // check if same override already there, then compose
+        Internal.MethodDesc methodAlready = null;
+        for (var m : Internal.methods)
+            if (m.clazz == clazz && m.name.equals(methodName))
+                methodAlready = m;
+
+        if (methodAlready != null)
+            methodAlready.method = compose(methodAlready.method, method);
+        else
+            Internal.methods.add(new Internal.MethodDesc(methodName, method, clazz));
+    }
+
+    private static Function<Object[], Object> compose(Function<Object[], Object> f1, Function<Object[], Object> f2) {
+        return args -> {
+            var v = f1.apply(args);
+            if (LibCustom.ORIGINAL.equals(v))
+                v = f2.apply(args);
+
+            return v;
+        };
     }
 
     public static void overrideWithSelf(Class<?> clazz, String methodName, ThrowingFunction<Internal.ArgsSelf, Object> method) {

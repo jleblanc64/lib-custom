@@ -36,14 +36,14 @@ public class VavrHibernate5 {
     static MetaList metaList = new MetaListVavr();
 
     public static void override() {
-        override(metaOption, metaList);
+        overrideList(metaList);
+        overrideOpt(metaOption);
     }
 
     @SneakyThrows
-    public static void override(MetaOption metaOption, MetaList metaList) {
+    public static void overrideList(MetaList metaList) {
         var bagTypeClass = Class.forName("org.hibernate.type.BagType");
         var setterFieldImplClass = Class.forName("org.hibernate.property.access.spi.SetterFieldImpl");
-        var getterFieldImplClass = Class.forName("org.hibernate.property.access.spi.GetterFieldImpl");
 
         LibCustom.modifyReturn(Class.forName("org.hibernate.metamodel.internal.AttributeFactory$BaseAttributeMetadata"), "getJavaType", x -> {
             var clazz = x.returned;
@@ -61,6 +61,56 @@ public class VavrHibernate5 {
 
             if (metaList.isSuperClassOf(field.getType()))
                 return metaList.fromJava((List) value);
+
+            return LibCustom.ORIGINAL;
+        });
+
+        LibCustom.modifyArg(Class.forName("org.hibernate.annotations.common.reflection.java.JavaXProperty"), "create", 0, args -> {
+            var member = args[0];
+            if (member instanceof Field) {
+                var field = (Field) member;
+                if (!(field.getGenericType() instanceof ParameterizedType))
+                    return LibCustom.ORIGINAL;
+
+                var type = (ParameterizedType) field.getGenericType();
+                var typeRaw = type.getRawType();
+                var typeParam = type.getActualTypeArguments()[0];
+                var ownerType = ((ParameterizedType) field.getGenericType()).getOwnerType();
+                if (metaList.isSuperClassOf(typeRaw))
+                    return FieldCustomType.create(field, new TypeImpl(List.class, new Type[]{typeParam}, ownerType));
+            }
+
+            return LibCustom.ORIGINAL;
+        });
+
+        LibCustom.modifyArg(Class.forName("org.hibernate.type.CollectionType"), "getElementsIterator", 0, args -> {
+            var collection = args[0];
+            if (metaList.isSuperClassOf(collection))
+                return metaList.toJava(collection);
+
+            return collection;
+        });
+
+        LibCustom.modifyArg(bagTypeClass, "wrap", 1, args -> {
+            var collection = args[1];
+            if (metaList.isSuperClassOf(collection))
+                return metaList.toJava(collection);
+
+            return collection;
+        });
+    }
+
+    @SneakyThrows
+    public static void overrideOpt(MetaOption metaOption) {
+        var setterFieldImplClass = Class.forName("org.hibernate.property.access.spi.SetterFieldImpl");
+        var getterFieldImplClass = Class.forName("org.hibernate.property.access.spi.GetterFieldImpl");
+
+
+        LibCustom.modifyArgWithSelf(setterFieldImplClass, "set", 1, argsSelf -> {
+            var args = argsSelf.args;
+            var value = args[1];
+            var self = argsSelf.self;
+            var field = (Field) getRefl(self, setterFieldImplClass.getDeclaredField("field"));
 
             if (metaOption.isSuperClassOf(field.getType()) && !metaOption.isSuperClassOf(value))
                 return metaOption.fromValue(value);
@@ -87,30 +137,12 @@ public class VavrHibernate5 {
                 var typeRaw = type.getRawType();
                 var typeParam = type.getActualTypeArguments()[0];
                 var ownerType = ((ParameterizedType) field.getGenericType()).getOwnerType();
-                if (metaList.isSuperClassOf(typeRaw))
-                    return FieldCustomType.create(field, new TypeImpl(List.class, new Type[]{typeParam}, ownerType));
 
                 if (metaOption.isSuperClassOf(typeRaw))
                     return FieldCustomType.create(field, new TypeImpl((Class<?>) typeParam, new Type[]{}, ownerType));
             }
 
             return LibCustom.ORIGINAL;
-        });
-
-        LibCustom.modifyArg(Class.forName("org.hibernate.type.CollectionType"), "getElementsIterator", 0, args -> {
-            var collection = args[0];
-            if (metaList.isSuperClassOf(collection))
-                return metaList.toJava(collection);
-
-            return collection;
-        });
-
-        LibCustom.modifyArg(bagTypeClass, "wrap", 1, args -> {
-            var collection = args[1];
-            if (metaList.isSuperClassOf(collection))
-                return metaList.toJava(collection);
-
-            return collection;
         });
     }
 }
