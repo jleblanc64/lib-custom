@@ -16,69 +16,77 @@
 package io.github.jleblanc64.libcustom.custom.hibernate;
 
 import io.github.jleblanc64.libcustom.LibCustom;
+import io.github.jleblanc64.libcustom.custom.hibernate.duplicate.JavaXProperty;
+import io.github.jleblanc64.libcustom.custom.hibernate.duplicate.MyCollectionType;
 import io.github.jleblanc64.libcustom.custom.utils.FieldCustomType;
 import io.github.jleblanc64.libcustom.custom.utils.TypeImpl;
 import io.github.jleblanc64.libcustom.meta.MetaList;
-import io.github.jleblanc64.libcustom.meta.MetaListVavr;
 import io.github.jleblanc64.libcustom.meta.MetaOption;
-import io.github.jleblanc64.libcustom.meta.MetaOptionVavr;
 import lombok.SneakyThrows;
+import org.hibernate.annotations.common.reflection.ReflectionManager;
+import org.hibernate.annotations.common.reflection.java.JavaXMember;
+import org.hibernate.cfg.AccessType;
+import org.hibernate.cfg.PropertyInferredData;
+import org.hibernate.cfg.annotations.BagBinder;
+import org.hibernate.cfg.annotations.CollectionBinder;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
+import org.hibernate.metamodel.model.domain.internal.PluralAttributeBuilder;
+import org.hibernate.persister.collection.AbstractCollectionPersister;
+import org.hibernate.type.BagType;
+import org.hibernate.type.CollectionType;
 
+import javax.persistence.metamodel.PluralAttribute;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.List;
+import java.util.Map;
 
-import static io.github.jleblanc64.libcustom.FieldMocked.getRefl;
+import static io.github.jleblanc64.libcustom.custom.hibernate.Utils.*;
 
 public class VavrHibernate5 {
-    static MetaOption metaOption = new MetaOptionVavr();
-    static MetaList metaList = new MetaListVavr();
-
-    public static void override() {
-        overrideList(metaList);
-        overrideOpt(metaOption);
-    }
-
     @SneakyThrows
-    public static void overrideList(MetaList metaList) {
-        var bagTypeClass = Class.forName("org.hibernate.type.BagType");
-        var setterFieldImplClass = Class.forName("org.hibernate.property.access.spi.SetterFieldImpl");
+    public static void override(MetaList metaList) {
+        var bagProvList = metaList.bag();
 
-        LibCustom.modifyReturn(Class.forName("org.hibernate.metamodel.internal.AttributeFactory$BaseAttributeMetadata"), "getJavaType", x -> {
-            var clazz = x.returned;
-            if (metaList.isSuperClassOf(clazz))
-                return List.class;
+        LibCustom.modifyArg(org.hibernate.cfg.AnnotationBinder.class, "processElementAnnotations", 2, args -> {
+            var pid = (PropertyInferredData) args[2];
+            var p = pid.getProperty();
+            var type = (Type) getRefl(p, "type");
+            var at = (AccessType) getRefl(pid, "defaultAccess");
+            var rm = (ReflectionManager) getRefl(pid, "reflectionManager");
+            var j = JavaXProperty.of((JavaXMember) p, type, null, metaList);
 
-            return LibCustom.ORIGINAL;
-        });
+            if (!(type instanceof ParameterizedType))
+                return LibCustom.ORIGINAL;
 
-        LibCustom.modifyArgWithSelf(setterFieldImplClass, "set", 1, argsSelf -> {
-            var args = argsSelf.args;
-            var value = args[1];
-            var self = argsSelf.self;
-            var field = (Field) getRefl(self, setterFieldImplClass.getDeclaredField("field"));
-
-            if (metaList.isSuperClassOf(field.getType()))
-                return metaList.fromJava((List) value);
-
-            return LibCustom.ORIGINAL;
-        });
-
-        LibCustom.modifyArg(Class.forName("org.hibernate.annotations.common.reflection.java.JavaXProperty"), "create", 0, args -> {
-            var member = args[0];
-            if (member instanceof Field) {
-                var field = (Field) member;
-                if (!(field.getGenericType() instanceof ParameterizedType))
-                    return LibCustom.ORIGINAL;
-
-                var type = (ParameterizedType) field.getGenericType();
-                var typeRaw = type.getRawType();
-                var typeParam = type.getActualTypeArguments()[0];
-                var ownerType = ((ParameterizedType) field.getGenericType()).getOwnerType();
-                if (metaList.isSuperClassOf(typeRaw))
-                    return FieldCustomType.create(field, new TypeImpl(List.class, new Type[]{typeParam}, ownerType));
+            var rawType = ((ParameterizedType) type).getRawType();
+            if (metaList.isSuperClassOf(rawType)) {
+                var f = (Field) j.getMember();
+                var jOver = JavaXProperty.of(f, type, j, null, metaList);
+                return new PropertyInferredData(pid.getDeclaringClass(), jOver, at.getType(), rm);
             }
+
+            return LibCustom.ORIGINAL;
+        });
+
+        LibCustom.override(org.hibernate.metamodel.internal.AttributeFactory.class, "determineCollectionType", args -> {
+            var clazz = (Class) args[0];
+            if (metaList.isSuperClassOf(clazz))
+                return PluralAttribute.CollectionType.LIST;
+
+            return LibCustom.ORIGINAL;
+        });
+
+        LibCustom.overrideWithSelf(org.hibernate.metamodel.model.domain.internal.PluralAttributeBuilder.class, "build", x -> {
+            var self = x.self;
+
+            var collectionClass = (Class) getRefl(self, "collectionClass");
+            var listAttrClass = Class.forName("org.hibernate.metamodel.model.domain.internal.ListAttributeImpl");
+            var constructor = listAttrClass.getDeclaredConstructor(PluralAttributeBuilder.class);
+            constructor.setAccessible(true);
+
+            if (metaList.isSuperClassOf(collectionClass))
+                return constructor.newInstance(self);
 
             return LibCustom.ORIGINAL;
         });
@@ -91,20 +99,43 @@ public class VavrHibernate5 {
             return collection;
         });
 
-        LibCustom.modifyArg(bagTypeClass, "wrap", 1, args -> {
-            var collection = args[1];
-            if (metaList.isSuperClassOf(collection))
-                return metaList.toJava(collection);
+        LibCustom.override(CollectionBinder.class, "getBinderFromBasicCollectionType", args ->
+                metaList.isSuperClassOf(args[0]) ? new BagBinder() : LibCustom.ORIGINAL);
 
-            return collection;
+        LibCustom.override(BagType.class, "instantiate", args -> {
+            if (args.length == 1)
+                return LibCustom.ORIGINAL;
+
+            var pers = (AbstractCollectionPersister) args[1];
+            if (isOfType(pers, metaList))
+                return checkPersistentBag(bagProvList.of((SharedSessionContractImplementor) args[0]));
+
+            return LibCustom.ORIGINAL;
+        });
+
+        LibCustom.override(BagType.class, "wrap", args -> {
+            var arg1 = args[1];
+
+            if (metaList.isSuperClassOf(arg1)) {
+                var c = metaList.toJava(arg1);
+                return checkPersistentBag(bagProvList.of((SharedSessionContractImplementor) args[0], c));
+            }
+
+            return LibCustom.ORIGINAL;
+        });
+
+        LibCustom.overrideWithSelf(CollectionType.class, "replaceElements", x -> {
+            var args = x.args;
+            var c = (CollectionType) x.self;
+
+            return MyCollectionType.replaceElements(args[0], args[1], args[2], (Map) args[3], (SharedSessionContractImplementor) args[4], c);
         });
     }
 
     @SneakyThrows
-    public static void overrideOpt(MetaOption metaOption) {
+    public static void override(MetaOption<?> metaOption) {
         var setterFieldImplClass = Class.forName("org.hibernate.property.access.spi.SetterFieldImpl");
         var getterFieldImplClass = Class.forName("org.hibernate.property.access.spi.GetterFieldImpl");
-
 
         LibCustom.modifyArgWithSelf(setterFieldImplClass, "set", 1, argsSelf -> {
             var args = argsSelf.args;

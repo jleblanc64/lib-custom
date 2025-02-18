@@ -28,13 +28,8 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 import static io.github.jleblanc64.libcustom.FieldMocked.getRefl;
-import static io.github.jleblanc64.libcustom.custom.hibernate.VavrHibernate5.metaList;
-import static io.github.jleblanc64.libcustom.custom.hibernate.VavrHibernate5.metaOption;
 
 public class VavrHibernate6 {
-    public static void override() {
-        override(metaOption, metaList);
-    }
 
     @SneakyThrows
     public static void override(MetaOption metaOption, MetaList metaList) {
