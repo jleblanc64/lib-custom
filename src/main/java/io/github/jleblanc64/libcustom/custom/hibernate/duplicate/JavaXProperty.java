@@ -19,7 +19,6 @@ package io.github.jleblanc64.libcustom.custom.hibernate.duplicate;
 import io.github.jleblanc64.libcustom.custom.hibernate.Utils;
 import io.github.jleblanc64.libcustom.functional.ListF;
 import io.github.jleblanc64.libcustom.meta.MetaList;
-import io.github.jleblanc64.libcustom.meta.MetaOption;
 import lombok.SneakyThrows;
 import org.hibernate.annotations.common.reflection.XClass;
 import org.hibernate.annotations.common.reflection.XProperty;
@@ -48,24 +47,24 @@ public class JavaXProperty extends JavaXMember implements XProperty {
     private XClass elementClass;
 
     @SneakyThrows
-    public static JavaXProperty of(JavaXMember m, Type type, MetaOption metaOption, MetaList metaList) {
-        return of(m, type, f(m.getAnnotations()), metaOption, metaList);
+    public static JavaXProperty of(JavaXMember m, Type type, MetaList metaList) {
+        return of(m, type, f(m.getAnnotations()), metaList);
     }
 
     @SneakyThrows
-    public static JavaXProperty of(Field f, Type type, JavaXProperty j, MetaOption metaOption, MetaList metaList) {
-        return new JavaXProperty(f, type, j.env, j.factory, j.annotations, metaOption, metaList);
+    public static JavaXProperty of(Field f, Type type, JavaXProperty j, MetaList metaList) {
+        return new JavaXProperty(f, type, j.env, j.factory, j.annotations, metaList);
     }
 
     @SneakyThrows
-    private static JavaXProperty of(JavaXMember m, Type type, List<Annotation> annotations, MetaOption metaOption, MetaList metaList) {
+    private static JavaXProperty of(JavaXMember m, Type type, List<Annotation> annotations, MetaList metaList) {
         var env = (TypeEnvironment) getRefl(m, "env");
-        return new JavaXProperty(m.getMember(), type, env, new JavaReflectionManager(), f(annotations), metaOption, metaList);
+        return new JavaXProperty(m.getMember(), type, env, new JavaReflectionManager(), f(annotations), metaList);
     }
 
     @SneakyThrows
     private JavaXProperty(Member member, Type type, TypeEnvironment env, JavaReflectionManager factory, ListF<Annotation> annotations,
-                          MetaOption metaOption, MetaList metaList) {
+                          MetaList metaList) {
         super(member, type, env, factory, factory.toXType(env, typeOf(member, env)));
 
         this.env = env;
@@ -82,17 +81,7 @@ public class JavaXProperty extends JavaXMember implements XProperty {
 
         // elementClass
         var typeS = getRefl(this, "type").toString();
-        if (metaOption != null && typeS.startsWith(metaOption.monadClass().getName() + "<")) {
-
-            var paramClass = Utils.paramClass(typeS);
-            var clazzJavaXClass = Class.forName("org.hibernate.annotations.common.reflection.java.JavaXClass");
-            constructor = clazzJavaXClass.getDeclaredConstructor(Class.class, TypeEnvironment.class, JavaReflectionManager.class);
-            constructor.setAccessible(true);
-
-            isCollection = isEntity(paramClass.getDeclaredAnnotations());
-            collectionClass = metaOption.monadClass();
-            elementClass = (XClass) constructor.newInstance(paramClass, env, factory);
-        } else if (metaList != null && typeS.startsWith(metaList.monadClass().getName() + "<")) {
+        if (metaList != null && typeS.startsWith(metaList.monadClass().getName() + "<")) {
             var paramClass = Utils.paramClass(typeS);
             var clazzJavaXClass = Class.forName("org.hibernate.annotations.common.reflection.java.JavaXClass");
             constructor = clazzJavaXClass.getDeclaredConstructor(Class.class, TypeEnvironment.class, JavaReflectionManager.class);

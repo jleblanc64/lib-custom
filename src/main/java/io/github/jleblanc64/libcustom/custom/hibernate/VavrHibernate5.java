@@ -54,7 +54,7 @@ public class VavrHibernate5 {
             var type = (Type) getRefl(p, "type");
             var at = (AccessType) getRefl(pid, "defaultAccess");
             var rm = (ReflectionManager) getRefl(pid, "reflectionManager");
-            var j = JavaXProperty.of((JavaXMember) p, type, null, metaList);
+            var j = JavaXProperty.of((JavaXMember) p, type, metaList);
 
             if (!(type instanceof ParameterizedType))
                 return LibCustom.ORIGINAL;
@@ -62,7 +62,7 @@ public class VavrHibernate5 {
             var rawType = ((ParameterizedType) type).getRawType();
             if (metaList.isSuperClassOf(rawType)) {
                 var f = (Field) j.getMember();
-                var jOver = JavaXProperty.of(f, type, j, null, metaList);
+                var jOver = JavaXProperty.of(f, type, j, metaList);
                 return new PropertyInferredData(pid.getDeclaringClass(), jOver, at.getType(), rm);
             }
 
