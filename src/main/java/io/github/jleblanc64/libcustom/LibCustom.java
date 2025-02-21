@@ -15,6 +15,7 @@
  */
 package io.github.jleblanc64.libcustom;
 
+import io.github.jleblanc64.libcustom.functional.ListF;
 import lombok.SneakyThrows;
 import net.bytebuddy.agent.ByteBuddyAgent;
 import net.bytebuddy.agent.builder.AgentBuilder;
@@ -40,15 +41,19 @@ public class LibCustom {
         checkFunctionName(clazz, methodName);
 
         // check if same override already there, then compose
-        Internal.MethodDesc methodAlready = null;
-        for (var m : Internal.methods)
-            if (m.clazz == clazz && m.name.equals(methodName))
-                methodAlready = m;
-
+        var methodAlready = findAlready(clazz, methodName, Internal.methods);
         if (methodAlready != null)
             methodAlready.method = compose(methodAlready.method, method);
         else
             Internal.methods.add(new Internal.MethodDesc(methodName, method, clazz));
+    }
+
+    private static <T extends Internal.MethodMeta> T findAlready(Class<?> clazz,String name, ListF<T> l){
+        for (var m : l)
+            if (m.getClazz() == clazz && m.getName().equals(name))
+                return m;
+
+        return null;
     }
 
     private static Function<Object[], Object> compose(Function<Object[], Object> f1, Function<Object[], Object> f2) {
@@ -69,7 +74,22 @@ public class LibCustom {
 
     public static void modifyReturn(Class<?> clazz, String methodName, ThrowingFunction<Internal.ArgsReturned, Object> method) {
         checkFunctionName(clazz, methodName);
-        Internal.methodsExitArgs.add(new Internal.MethodDescExitArgs(methodName, method, clazz));
+
+        var methodAlready = findAlready(clazz, methodName, Internal.methodsExitArgs);
+        if (methodAlready != null)
+            methodAlready.method = composeReturn(methodAlready.method, method);
+        else
+            Internal.methodsExitArgs.add(new Internal.MethodDescExitArgs(methodName, method, clazz));
+    }
+
+    private static ThrowingFunction<Internal.ArgsReturned, Object> composeReturn(ThrowingFunction<Internal.ArgsReturned, Object> f1, ThrowingFunction<Internal.ArgsReturned, Object> f2) {
+        return x -> {
+            var v = f1.apply(x);
+            if (!LibCustom.ORIGINAL.equals(v))
+                x.returned = v;
+
+            return f2.apply(x);
+        };
     }
 
     public static void modifyArg(Class<?> clazz, String methodName, int argIdx, ThrowingFunction<Object[], Object> method) {

@@ -15,6 +15,7 @@
  */
 package io.github.jleblanc64.libcustom;
 
+import io.github.jleblanc64.libcustom.functional.Functor;
 import io.github.jleblanc64.libcustom.functional.ListF;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -129,7 +130,7 @@ public class Internal {
     @Getter
     static class MethodDescExitArgs implements MethodMeta {
         String name;
-        Function<ArgsReturned, Object> method;
+        Functor.ThrowingFunction<ArgsReturned, Object> method;
         Class<?> clazz;
     }
 
