@@ -19,7 +19,6 @@ import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
-import org.json.JSONArray;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -201,14 +200,6 @@ public class ListF<T> implements List<T> {
 
     public static ListF<Integer> fI(int[] l) {
         return f(Arrays.stream(l).boxed().toArray(Integer[]::new));
-    }
-
-    public static <T> ListF<T> f(JSONArray ja, Class<T> clazz) {
-        ListF<T> l = ListF.empty();
-        for (int i = 0; i < ja.length(); i++)
-            l.add((T) ja.get(i));
-
-        return l;
     }
 
     // new ArrayList<>() call so that list is mutable
