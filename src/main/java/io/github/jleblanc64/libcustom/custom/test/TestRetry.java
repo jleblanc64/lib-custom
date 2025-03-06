@@ -26,6 +26,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
+import static io.github.jleblanc64.libcustom.functional.ListF.f;
 
 // mvn clean test -Dtest=TestRetryTests#test
 public class TestRetry {
@@ -37,19 +40,34 @@ public class TestRetry {
         if (DISABLE.get())
             return;
 
-        var methodSelectorClass = Class.forName("org.junit.platform.engine.discovery.MethodSelector");
         var testClass = Class.forName("org.junit.jupiter.api.Test");
         var reflectionUtilsClass = Class.forName("org.junit.platform.commons.util.ReflectionUtils");
         var retryingTestClass = (Class<? extends Annotation>) Class.forName("org.junitpioneer.jupiter.RetryingTest");
 
-        LibCustom.modifyReturn(methodSelectorClass, "getJavaMethod", ret -> {
-            var m = (Method) ret.returned;
+        LibCustom.modifyReturn(reflectionUtilsClass, "findMethod", x -> {
+            var o = (Optional<Method>) x.returned;
+            if (o == null || o.isEmpty())
+                return o;
+
+            var method = o.get();
 
             // ignore non-test function
-            if (!isAnnotated(m, testClass))
-                return LibCustom.ORIGINAL;
+            if (!isAnnotated(method, testClass))
+                return o;
 
-            return mockMethodAnnotations(m, retryingTestClass, testClass);
+            return Optional.of(mockMethodAnnotations(method, retryingTestClass, testClass));
+        });
+
+        LibCustom.modifyReturn(reflectionUtilsClass, "findMethods", x -> {
+            var l = (List<Method>) x.returned;
+
+            return f(l).map(m -> {
+                // ignore non-test function
+                if (!isAnnotated(m, testClass))
+                    return m;
+
+                return mockMethodAnnotations(m, retryingTestClass, testClass);
+            });
         });
 
         // bypass mockito for method.invoke(), use the base non mocked method (to preserve stacktrace)
