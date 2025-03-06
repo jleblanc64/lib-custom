@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+// should fail when run directly in IntelliJ
 public class TestRetryTests {
     static int count = 0;
 
