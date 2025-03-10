@@ -1,4 +1,4 @@
-# lib-custom
+# Lib Custom
 
 Lib Custom is a Java library for customizing any method at runtime, whether the method is part of your codebase or external.
 
