@@ -96,9 +96,14 @@ public class LibCustom {
         checkFunctionName(clazz, methodName);
 
         var methodAlready = findAlready(clazz, methodName, Internal.methodsArgsMod);
-        if (methodAlready != null)
+        if (methodAlready != null) {
+            // check same index
+            var argIdx0 = methodAlready.method.argIdx;
+            if (argIdx != argIdx0)
+                throw new RuntimeException("Cannot compose modifyArg() on 2 different indexes");
+
             methodAlready.method.method = composeModifyArg(methodAlready.method.method, method);
-        else
+        } else
             Internal.methodsArgsMod.add(new Internal.MethodDescArgsMod(methodName, new Internal.MethodArgIdx(argIdx, method), clazz));
     }
 

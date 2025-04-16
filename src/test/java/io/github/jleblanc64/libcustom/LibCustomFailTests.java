@@ -23,4 +23,18 @@ public class LibCustomFailTests {
         ex = catchEx(() -> LibCustom.override(LibCustomTests.A.class, "ff", x -> null));
         assertEquals("No method: ff in class: io.github.jleblanc64.libcustom.LibCustomTests$A", ex);
     }
+
+    @Test
+    void testComposeModifyArgDiffIdx() {
+        LibCustom.modifyArg(C.class, "f", 0, args -> "");
+
+        var ex = catchEx(() -> LibCustom.modifyArg(C.class, "f", 1, args -> ""));
+        assertEquals("Cannot compose modifyArg() on 2 different indexes", ex);
+    }
+
+    static class C {
+        static String f(String a, String b) {
+            return a + b;
+        }
+    }
 }
