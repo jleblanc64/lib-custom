@@ -80,6 +80,35 @@ public class LibCustomComposeTests {
         assertEquals(1, b.b);
     }
 
+    @Test
+    void testModifyArg() {
+        LibCustom.modifyArg(C.class, "f", 0, args -> {
+            var s = args[0];
+            if ("a".equals(s))
+                return "a2";
+
+            return LibCustom.ORIGINAL;
+        });
+        LibCustom.load();
+
+        assertEquals("a2", C.f("a"));
+        assertEquals("b", C.f("b"));
+        assertEquals("c", C.f("c"));
+
+        LibCustom.modifyArg(C.class, "f", 0, args -> {
+            var s = args[0];
+            if ("b".equals(s))
+                return "b2";
+
+            return LibCustom.ORIGINAL;
+        });
+        LibCustom.load();
+
+        assertEquals("a2", C.f("a"));
+        assertEquals("b2", C.f("b"));
+        assertEquals("c", C.f("c"));
+    }
+
     static class A {
         static String f(String s) {
             return s;
@@ -92,6 +121,12 @@ public class LibCustomComposeTests {
 
         static B f() {
             return new B();
+        }
+    }
+
+    static class C {
+        static String f(String s) {
+            return s;
         }
     }
 }

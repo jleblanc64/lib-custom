@@ -48,7 +48,7 @@ public class LibCustom {
             Internal.methods.add(new Internal.MethodDesc(methodName, method, clazz));
     }
 
-    private static <T extends Internal.MethodMeta> T findAlready(Class<?> clazz,String name, ListF<T> l){
+    private static <T extends Internal.MethodMeta> T findAlready(Class<?> clazz, String name, ListF<T> l) {
         for (var m : l)
             if (m.getClazz() == clazz && m.getName().equals(name))
                 return m;
@@ -94,7 +94,22 @@ public class LibCustom {
 
     public static void modifyArg(Class<?> clazz, String methodName, int argIdx, ThrowingFunction<Object[], Object> method) {
         checkFunctionName(clazz, methodName);
-        Internal.methodsArgsMod.add(new Internal.MethodDescArgsMod(methodName, new Internal.MethodArgIdx(argIdx, method), clazz));
+
+        var methodAlready = findAlready(clazz, methodName, Internal.methodsArgsMod);
+        if (methodAlready != null)
+            methodAlready.method.method = composeModifyArg(methodAlready.method.method, method);
+        else
+            Internal.methodsArgsMod.add(new Internal.MethodDescArgsMod(methodName, new Internal.MethodArgIdx(argIdx, method), clazz));
+    }
+
+    private static ThrowingFunction<Object[], Object> composeModifyArg(Function<Object[], Object> f1, ThrowingFunction<Object[], Object> f2) {
+        return args -> {
+            var v = f1.apply(args);
+            if (LibCustom.ORIGINAL.equals(v))
+                v = f2.apply(args);
+
+            return v;
+        };
     }
 
     public static void modifyArgWithSelf(Class<?> clazz, String methodName, int argIdx, ThrowingFunction<Internal.ArgsSelf, Object> method) {
