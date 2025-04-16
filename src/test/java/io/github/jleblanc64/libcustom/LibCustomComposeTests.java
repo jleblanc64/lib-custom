@@ -109,6 +109,36 @@ public class LibCustomComposeTests {
         assertEquals("c", C.f("c"));
     }
 
+    @Test
+    void testModifyWithSelf() {
+        LibCustom.overrideWithSelf(D.class, "f", x -> {
+            var s = x.args[0];
+            if ("a".equals(s))
+                return "a2";
+
+            return LibCustom.ORIGINAL;
+        });
+        LibCustom.load();
+
+        var d = new D();
+        assertEquals("a2", d.f("a"));
+        assertEquals("b", d.f("b"));
+        assertEquals("c", d.f("c"));
+
+        LibCustom.overrideWithSelf(D.class, "f", x -> {
+            var s = x.args[0];
+            if ("b".equals(s))
+                return "b2";
+
+            return LibCustom.ORIGINAL;
+        });
+        LibCustom.load();
+
+        assertEquals("a2", d.f("a"));
+        assertEquals("b2", d.f("b"));
+        assertEquals("c", d.f("c"));
+    }
+
     static class A {
         static String f(String s) {
             return s;
@@ -126,6 +156,12 @@ public class LibCustomComposeTests {
 
     static class C {
         static String f(String s) {
+            return s;
+        }
+    }
+
+    static class D {
+        String f(String s) {
             return s;
         }
     }

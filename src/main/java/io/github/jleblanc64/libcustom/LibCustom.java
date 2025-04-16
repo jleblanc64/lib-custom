@@ -69,7 +69,22 @@ public class LibCustom {
     public static void overrideWithSelf(Class<?> clazz, String methodName, ThrowingFunction<Internal.ArgsSelf, Object> method) {
         checkFunctionName(clazz, methodName);
         checkNotStatic(clazz, methodName);
-        Internal.methodsSelf.add(new Internal.MethodDescSelf(methodName, method, clazz));
+
+        var methodAlready = findAlready(clazz, methodName, Internal.methodsSelf);
+        if (methodAlready != null)
+            methodAlready.method = composeWithSelf(methodAlready.method, method);
+        else
+            Internal.methodsSelf.add(new Internal.MethodDescSelf(methodName, method, clazz));
+    }
+
+    private static ThrowingFunction<Internal.ArgsSelf, Object> composeWithSelf(Function<Internal.ArgsSelf, Object> f1, Function<Internal.ArgsSelf, Object> f2) {
+        return x -> {
+            var v = f1.apply(x);
+            if (LibCustom.ORIGINAL.equals(v))
+                v = f2.apply(x);
+
+            return v;
+        };
     }
 
     public static void modifyReturn(Class<?> clazz, String methodName, ThrowingFunction<Internal.ArgsReturned, Object> method) {
@@ -82,7 +97,7 @@ public class LibCustom {
             Internal.methodsExitArgs.add(new Internal.MethodDescExitArgs(methodName, method, clazz));
     }
 
-    private static ThrowingFunction<Internal.ArgsReturned, Object> composeReturn(ThrowingFunction<Internal.ArgsReturned, Object> f1, ThrowingFunction<Internal.ArgsReturned, Object> f2) {
+    private static ThrowingFunction<Internal.ArgsReturned, Object> composeReturn(Function<Internal.ArgsReturned, Object> f1, Function<Internal.ArgsReturned, Object> f2) {
         return x -> {
             var v = f1.apply(x);
             if (!LibCustom.ORIGINAL.equals(v))
